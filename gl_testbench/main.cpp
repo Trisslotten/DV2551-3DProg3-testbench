@@ -298,7 +298,7 @@ void shutdown() {
 	renderer->shutdown();
 };
 
-int main(int argc, char *argv[])
+/*int main(int argc, char *argv[])
 {
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
 	renderer->initialize(800,600);
@@ -309,3 +309,4 @@ int main(int argc, char *argv[])
 	shutdown();
 	return 0;
 };
+*/
