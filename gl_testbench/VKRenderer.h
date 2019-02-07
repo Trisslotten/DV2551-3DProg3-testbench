@@ -1,6 +1,10 @@
 #pragma once
 #include "Renderer.h"
-#include <vulkan.hpp>
+
+#include <SDL.h>
+#include <SDL_vulkan.h>
+#undef main //?????????????? -> https://stackoverflow.com/questions/6847360/error-lnk2019-unresolved-external-symbol-main-referenced-in-function-tmainc
+#include <vulkan.h>
 
 #pragma comment(lib,"SDL2.lib")
 #pragma comment(lib,"SDL2main.lib")
@@ -9,6 +13,8 @@
 class VKRenderer// : public Renderer (commented for testing)
 {
 private:
+	SDL_Window *window;
+
 	VkInstance instance;
 	VkPhysicalDevice device;
 	void createInstance();

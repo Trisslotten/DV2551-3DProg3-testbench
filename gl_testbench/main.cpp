@@ -1,4 +1,4 @@
-#include <string>
+/*#include <string>
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
 #include <SDL_timer.h>
@@ -87,14 +87,10 @@ void run() {
 	}
 }
 
-/*
- update positions of triangles in the screen changing a translation only
-*/
+ //update positions of triangles in the screen changing a translation only
 void updateScene()
 {
-	/*
-	    For each mesh in scene list, update their position 
-	*/
+	    //For each mesh in scene list, update their position 
 	{
 		static long long shift = 0;
 		const int size = scene.size();
@@ -298,7 +294,7 @@ void shutdown() {
 	renderer->shutdown();
 };
 
-/*int main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
 	renderer->initialize(800,600);

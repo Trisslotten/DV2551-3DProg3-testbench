@@ -6,6 +6,14 @@ VKRenderer::VKRenderer() {
 }
 
 int VKRenderer::initialize(unsigned int width, unsigned int height) {
+
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	{
+		fprintf(stderr, "%s", SDL_GetError());
+		exit(-1);
+	}
+	window = SDL_CreateWindow("Vulkan", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_VULKAN);
+
 	this->createInstance();
 	this->pickPhysicalDevice();
 
@@ -27,7 +35,30 @@ void VKRenderer::createInstance() {
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
 	
-	//extensions?
+	unsigned int count;
+	if (!SDL_Vulkan_GetInstanceExtensions(window, &count, nullptr)) {
+		throw std::runtime_error("failed to get SDL Vulkan Extensions!");
+	}
+
+	std::vector<const char*> extensions = {
+		VK_EXT_DEBUG_REPORT_EXTENSION_NAME // Sample additional extension
+	};
+	size_t additional_extension_count = extensions.size();
+	extensions.resize(additional_extension_count + count);
+
+	if (!SDL_Vulkan_GetInstanceExtensions(window, &count, extensions.data() + additional_extension_count)) {
+		throw std::runtime_error("failed to get SDL Vulkan Extensions!");
+	}
+
+
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+	createInfo.ppEnabledExtensionNames = extensions.data();
+
+	printf("Loaded Vulkan Extensions:\n");
+	for (const char* ext : extensions) {
+		printf("%s\n", ext);
+	}
+
 	//validation layers?
 
 	createInfo.enabledLayerCount = 0;
