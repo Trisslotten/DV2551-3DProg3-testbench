@@ -35,6 +35,7 @@ void VKRenderer::createInstance() {
 	if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create instance!");
 	}
+	printf("Created VKInstance! \n");
 }
 
 bool isDeviceSuitable(VkPhysicalDevice device) {
@@ -71,11 +72,12 @@ void VKRenderer::pickPhysicalDevice() {
 	}
 	VkPhysicalDeviceProperties deviceProperties;
 	vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-	printf("Picked device with name: %s \n", deviceProperties.deviceName);
+	printf("Picked device with name: %s. \n", deviceProperties.deviceName);
 }
 
 int VKRenderer::shutdown() {
 	vkDestroyInstance(instance, nullptr);
+	
 	//destroy sdl window here
 
 	return 0;
