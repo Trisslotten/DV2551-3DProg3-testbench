@@ -16,10 +16,21 @@ int VKRenderer::initialize(unsigned int width, unsigned int height) {
 
 	this->createInstance();
 	this->pickPhysicalDevice();
+	this->createSurface();
 
 	//create window etc.
 
 	return 1; //change?
+}
+
+void VKRenderer::createSurface() {
+	if (!SDL_Vulkan_CreateSurface(window, instance, &surface)) {
+		throw std::runtime_error("failed to create vulkan surface from SDL!");
+	}
+
+	//do more?
+
+	printf("Created VkSurface from STL\n");
 }
 
 void VKRenderer::createInstance() {
@@ -110,6 +121,7 @@ int VKRenderer::shutdown() {
 	vkDestroyInstance(instance, nullptr);
 	
 	//destroy sdl window here
+	SDL_Quit();
 
 	return 0;
 }

@@ -17,8 +17,10 @@ private:
 
 	VkInstance instance;
 	VkPhysicalDevice device;
+	VkSurfaceKHR surface;
 	void createInstance();
 	void pickPhysicalDevice();
+	void createSurface();
 public:
 	VKRenderer();
 	int initialize(unsigned int width = 640, unsigned int height = 480);
