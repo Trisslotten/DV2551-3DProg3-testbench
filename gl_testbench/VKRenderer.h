@@ -10,6 +10,16 @@
 #pragma comment(lib,"SDL2main.lib")
 #pragma comment(lib,"vulkan-1.lib")
 
+struct QueueFamilyIndices
+{
+	int graphicsFamily = -1;
+	int presentFamily = -1;
+	bool isComplete()
+	{
+		return graphicsFamily >= 0 && presentFamily >= 0;
+	}
+};
+
 class VKRenderer// : public Renderer (commented for testing)
 {
 private:
@@ -18,6 +28,11 @@ private:
 	VkInstance instance;
 	VkPhysicalDevice device;
 	VkSurfaceKHR surface;
+
+	QueueFamilyIndices familyIndices;
+
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
 	void createInstance();
 	void pickPhysicalDevice();
 	void createSurface();
