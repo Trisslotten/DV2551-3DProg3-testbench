@@ -3,6 +3,47 @@
 #include <iostream>
 #include <algorithm>
 
+VkResult CreateDebugReportCallbackEXT(
+	VkInstance instance, 
+	const VkDebugReportCallbackCreateInfoEXT* pCreateInfo, 
+	const VkAllocationCallbacks* pAllocator, 
+	VkDebugReportCallbackEXT* pCallback)
+{
+	auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
+	if (func != nullptr)
+	{
+		return func(instance, pCreateInfo, pAllocator, pCallback);
+	}
+	else
+	{
+		return VK_ERROR_EXTENSION_NOT_PRESENT;
+	}
+}
+
+
+void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, const VkAllocationCallbacks* pAllocator)
+{
+	auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");
+	if (func != nullptr)
+	{
+		func(instance, callback, pAllocator);
+	}
+}
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+	VkDebugReportFlagsEXT flags, 
+	VkDebugReportObjectTypeEXT objType, 
+	uint64_t obj, 
+	size_t location, 
+	int32_t code, 
+	const char* layerPrefix, 
+	const char* msg, 
+	void* userData)
+{
+	std::cerr << "VL: " << msg << std::endl;
+	return VK_FALSE;
+}
+
 VKRenderer::VKRenderer() {
 
 }
@@ -26,6 +67,15 @@ int VKRenderer::initialize(unsigned int width, unsigned int height) {
 	//create window etc.
 
 	return 1; //change?
+}
+
+void VKRenderer::setWinTitle(const char * title)
+{
+	SDL_SetWindowTitle(window, title);
+}
+
+void VKRenderer::present()
+{
 }
 
 void VKRenderer::createSurface() {
@@ -131,7 +181,39 @@ VkExtent2D VKRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR & capabil
 	}
 }
 
+bool VKRenderer::checkValidationLayerSupport()
+{
+	uint32_t layerCount;
+	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	std::vector<VkLayerProperties> availableLayers(layerCount);
+	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	for (const char* layerName : validationLayers)
+	{
+		bool layerFound = false;
+
+		for (const auto& layerProperties : availableLayers)
+		{
+			if (strcmp(layerName, layerProperties.layerName) == 0)
+			{
+				layerFound = true;
+				break;
+			}
+		}
+
+		if (!layerFound)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 void VKRenderer::createInstance() {
+	if (enableValidationLayers && !checkValidationLayerSupport())
+		throw std::runtime_error("validation layers requested, but not available!");
+
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "Vulkan Renderer";
@@ -149,13 +231,11 @@ void VKRenderer::createInstance() {
 		throw std::runtime_error("failed to get SDL Vulkan Extensions!");
 	}
 
-	std::vector<const char*> extensions = {
-		//VK_EXT_DEBUG_REPORT_EXTENSION_NAME // Sample additional extension
-	};
+	std::vector<const char*> extensions;
+
 	if (enableValidationLayers)
-	{
 		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-	}
+
 	size_t additional_extension_count = extensions.size();
 	extensions.resize(additional_extension_count + count);
 
@@ -169,16 +249,37 @@ void VKRenderer::createInstance() {
 
 	printf("Loaded Vulkan Extensions:\n");
 	for (const char* ext : extensions) {
-		printf("%s\n", ext);
+		printf("\t%s\n", ext);
 	}
 
-	//validation layers?
-
-	createInfo.enabledLayerCount = 0;
+	if (enableValidationLayers)
+	{
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
+	}
+	else
+	{
+		createInfo.enabledLayerCount = 0;
+	}
 
 	if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create instance!");
 	}
+
+
+	VkDebugReportCallbackCreateInfoEXT createInfo2 = {};
+	createInfo2.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+	createInfo2.flags = 0;
+	createInfo2.flags |= VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
+	createInfo2.flags |= VK_DEBUG_REPORT_WARNING_BIT_EXT;
+	createInfo2.flags |= VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+	createInfo2.flags |= VK_DEBUG_REPORT_ERROR_BIT_EXT;
+	createInfo2.flags |= VK_DEBUG_REPORT_DEBUG_BIT_EXT;
+
+	createInfo2.pfnCallback = debugCallback;
+	// can fail. check for VK_SUCCESS
+	CreateDebugReportCallbackEXT(instance, &createInfo2, nullptr, &callback);
+
 	printf("Created VKInstance! \n");
 }
 
@@ -282,7 +383,7 @@ void VKRenderer::createSwapChain()
 	createInfo.imageColorSpace = surfaceFormat.colorSpace;
 	createInfo.imageExtent = extent;
 	createInfo.imageArrayLayers = 1;
-	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	createInfo.imageUsage = VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT+ VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT;
 
 	uint32_t queueFamilyIndices[] = {
 		(uint32_t)familyIndices.graphicsFamily, (uint32_t)familyIndices.presentFamily
@@ -394,10 +495,85 @@ void VKRenderer::createRenderPass()
 }
 
 int VKRenderer::shutdown() {
+
+	if (enableValidationLayers)
+	{
+		//DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+	}
 	vkDestroyInstance(instance, nullptr);
 	
 	//destroy sdl window here
 	SDL_Quit();
 
 	return 0;
+}
+
+void VKRenderer::setClearColor(float, float, float, float)
+{
+}
+
+void VKRenderer::clearBuffer(unsigned int)
+{
+}
+
+void VKRenderer::setRenderState(RenderState * ps)
+{
+}
+
+void VKRenderer::submit(Mesh * mesh)
+{
+}
+
+void VKRenderer::frame()
+{
+}
+
+Material * VKRenderer::makeMaterial(const std::string & name)
+{
+	return nullptr;
+}
+
+Mesh * VKRenderer::makeMesh()
+{
+	return nullptr;
+}
+
+VertexBuffer * VKRenderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
+{
+	return nullptr;
+}
+
+Texture2D * VKRenderer::makeTexture2D()
+{
+	return nullptr;
+}
+
+Sampler2D * VKRenderer::makeSampler2D()
+{
+	return nullptr;
+}
+
+RenderState * VKRenderer::makeRenderState()
+{
+	return nullptr;
+}
+
+std::string VKRenderer::getShaderPath()
+{
+	return std::string();
+}
+
+std::string VKRenderer::getShaderExtension()
+{
+	return std::string();
+}
+
+ConstantBuffer * VKRenderer::makeConstantBuffer(std::string NAME, unsigned int location)
+{
+	return nullptr;
+}
+
+Technique * VKRenderer::makeTechnique(Material *, RenderState *)
+{
+	return nullptr;
 }

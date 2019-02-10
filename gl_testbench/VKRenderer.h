@@ -34,7 +34,7 @@ struct SwapChainSupportDetails
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
-class VKRenderer// : public Renderer (commented for testing)
+class VKRenderer : public Renderer
 {
 private:
 	SDL_Window *window;
@@ -42,6 +42,7 @@ private:
 	int width, height;
 
 	VkInstance instance;
+	VkDebugReportCallbackEXT callback;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkSurfaceKHR surface;
 	VkDevice device;
@@ -67,11 +68,14 @@ private:
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 
+	bool checkValidationLayerSupport();
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+
 
 	void createInstance();
 	void createSurface();
@@ -85,4 +89,29 @@ public:
 	int initialize(unsigned int width = 640, unsigned int height = 480);
 	void setWinTitle(const char* title);
 	int shutdown();
+
+
+	////////////////////////////////////////
+	// everything below to be implemented //
+	////////////////////////////////////////
+	void present();
+
+	void setClearColor(float, float, float, float);
+	void clearBuffer(unsigned int);
+	// can be partially overriden by a specific Technique.
+	void setRenderState(RenderState* ps);
+	// submit work (to render) to the renderer.
+	void submit(Mesh* mesh);
+	void frame();
+
+	Material* makeMaterial(const std::string& name);
+	Mesh* makeMesh();
+	VertexBuffer* makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage);
+	Texture2D* makeTexture2D();
+	Sampler2D* makeSampler2D();
+	RenderState* makeRenderState();
+	std::string getShaderPath();
+	std::string getShaderExtension();
+	ConstantBuffer* makeConstantBuffer(std::string NAME, unsigned int location);
+	Technique* makeTechnique(Material*, RenderState*);
 };
