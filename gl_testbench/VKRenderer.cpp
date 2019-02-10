@@ -11,23 +11,19 @@ VkResult CreateDebugReportCallbackEXT(
 {
 	auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
 	if (func != nullptr)
-	{
 		return func(instance, pCreateInfo, pAllocator, pCallback);
-	}
 	else
-	{
 		return VK_ERROR_EXTENSION_NOT_PRESENT;
-	}
 }
 
-
-void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, const VkAllocationCallbacks* pAllocator)
+void DestroyDebugReportCallbackEXT(
+	VkInstance instance, 
+	VkDebugReportCallbackEXT callback, 
+	const VkAllocationCallbacks* pAllocator)
 {
 	auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");
 	if (func != nullptr)
-	{
 		func(instance, callback, pAllocator);
-	}
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -266,20 +262,21 @@ void VKRenderer::createInstance() {
 		throw std::runtime_error("failed to create instance!");
 	}
 
-
 	VkDebugReportCallbackCreateInfoEXT createInfo2 = {};
 	createInfo2.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
 	createInfo2.flags = 0;
-	createInfo2.flags |= VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
+	//createInfo2.flags |= VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
 	createInfo2.flags |= VK_DEBUG_REPORT_WARNING_BIT_EXT;
-	createInfo2.flags |= VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+	//createInfo2.flags |= VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
 	createInfo2.flags |= VK_DEBUG_REPORT_ERROR_BIT_EXT;
 	createInfo2.flags |= VK_DEBUG_REPORT_DEBUG_BIT_EXT;
 
 	createInfo2.pfnCallback = debugCallback;
 	// can fail. check for VK_SUCCESS
-	CreateDebugReportCallbackEXT(instance, &createInfo2, nullptr, &callback);
-
+	if (CreateDebugReportCallbackEXT(instance, &createInfo2, nullptr, &callback) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to set up debug report!");
+	}
 	printf("Created VKInstance! \n");
 }
 
@@ -498,7 +495,7 @@ int VKRenderer::shutdown() {
 
 	if (enableValidationLayers)
 	{
-		//DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+		DestroyDebugReportCallbackEXT(instance, callback, nullptr);
 	}
 	vkDestroyInstance(instance, nullptr);
 	
