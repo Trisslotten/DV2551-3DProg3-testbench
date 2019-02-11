@@ -784,6 +784,10 @@ void VKRenderer::createSemaphores()
 }
 
 int VKRenderer::shutdown() {
+	// to avoid validation layer errors
+	vkQueueWaitIdle(graphicsQueue);
+	vkQueueWaitIdle(presentQueue);
+
 	vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
 	vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
 
