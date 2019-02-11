@@ -1,5 +1,7 @@
 #define NOMINMAX
 #include "VKRenderer.h"
+#include "RenderStateVK.h"
+#include "MeshVK.h"
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -886,7 +888,7 @@ Material * VKRenderer::makeMaterial(const std::string & name)
 
 Mesh * VKRenderer::makeMesh()
 {
-	return nullptr;
+	return new MeshVK();
 }
 
 VertexBuffer * VKRenderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
@@ -906,17 +908,20 @@ Sampler2D * VKRenderer::makeSampler2D()
 
 RenderState * VKRenderer::makeRenderState()
 {
-	return nullptr;
+	RenderStateVK* rs = new RenderStateVK();
+	rs->setGlobalWireFrame(&this->globalWireframeMode);
+	rs->setWireFrame(false);
+	return rs;
 }
 
 std::string VKRenderer::getShaderPath()
 {
-	return std::string();
+	return std::string("..\\assets\\vulkan\\");
 }
 
 std::string VKRenderer::getShaderExtension()
 {
-	return std::string();
+	return std::string(".spv");
 }
 
 ConstantBuffer * VKRenderer::makeConstantBuffer(std::string NAME, unsigned int location)

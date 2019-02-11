@@ -22,7 +22,7 @@
     <ProjectGuid>{0A6119F8-5444-4072-AD5C-CABCE1AF14C2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>gl_testbench</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="mainVulkanTest.cpp" />
+    <ClCompile Include="MeshVK.cpp" />
     <ClCompile Include="OpenGL\ConstantBufferGL.cpp" />
     <ClCompile Include="OpenGL\MaterialGL.cpp" />
     <ClCompile Include="OpenGL\MeshGL.cpp" />
@@ -164,6 +165,7 @@
     <ClCompile Include="OpenGL\Texture2DGL.cpp" />
     <ClCompile Include="OpenGL\TransformGL.cpp" />
     <ClCompile Include="OpenGL\VertexBufferGL.cpp" />
+    <ClCompile Include="RenderStateVK.cpp" />
     <ClCompile Include="Sampler2D.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
@@ -181,6 +183,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="MeshVK.h" />
     <ClInclude Include="OpenGL\ConstantBufferGL.h" />
     <ClInclude Include="OpenGL\MaterialGL.h" />
     <ClInclude Include="OpenGL\MeshGL.h" />
@@ -191,6 +194,7 @@
     <ClInclude Include="OpenGL\Texture2DGL.h" />
     <ClInclude Include="OpenGL\TransformGL.h" />
     <ClInclude Include="OpenGL\VertexBufferGL.h" />
+    <ClInclude Include="RenderStateVK.h" />
     <ClInclude Include="Sampler2D.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="VertexBuffer.h" />

@@ -99,6 +99,12 @@
     <ClCompile Include="mainVulkanTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MeshVK.cpp">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderStateVK.cpp">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -174,6 +180,12 @@
       <Filter>Source Files\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="VKRenderer.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshVK.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStateVK.h">
       <Filter>Source Files\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

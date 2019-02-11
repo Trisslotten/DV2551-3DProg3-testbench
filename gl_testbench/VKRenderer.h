@@ -41,6 +41,8 @@ private:
 
 	int width, height;
 
+	bool globalWireframeMode = false;
+
 	VkInstance instance;
 	VkDebugReportCallbackEXT callback;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
