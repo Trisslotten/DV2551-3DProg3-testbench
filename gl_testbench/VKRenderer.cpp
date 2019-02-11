@@ -829,8 +829,14 @@ void VKRenderer::setRenderState(RenderState * ps)
 {
 }
 
+int perMat = 1;
 void VKRenderer::submit(Mesh * mesh)
 {
+	if (perMat) {
+		drawList2[mesh->technique].push_back(mesh);
+	}
+	else
+		drawList.push_back(mesh);
 }
 
 void VKRenderer::present()
@@ -921,7 +927,7 @@ std::string VKRenderer::getShaderPath()
 
 std::string VKRenderer::getShaderExtension()
 {
-	return std::string(".spv");
+	return std::string(".glsl");
 }
 
 ConstantBuffer * VKRenderer::makeConstantBuffer(std::string NAME, unsigned int location)
@@ -929,7 +935,8 @@ ConstantBuffer * VKRenderer::makeConstantBuffer(std::string NAME, unsigned int l
 	return nullptr;
 }
 
-Technique * VKRenderer::makeTechnique(Material *, RenderState *)
+Technique * VKRenderer::makeTechnique(Material *m, RenderState *r)
 {
-	return nullptr;
+	Technique* t = new Technique(m, r);
+	return t;
 }

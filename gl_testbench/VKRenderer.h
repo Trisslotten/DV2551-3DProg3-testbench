@@ -43,6 +43,7 @@ private:
 
 	bool globalWireframeMode = false;
 
+	//Vulkan variables
 	VkInstance instance;
 	VkDebugReportCallbackEXT callback;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -99,6 +100,11 @@ private:
 	void createCommandPool();
 	void createCommandBuffers();
 	void createSemaphores();
+
+	//Renderer class variables
+	std::vector<Mesh*> drawList;
+	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
+
 public:
 	VKRenderer();
 	int initialize(unsigned int width = 640, unsigned int height = 480);
