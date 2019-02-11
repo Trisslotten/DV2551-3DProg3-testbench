@@ -58,6 +58,15 @@ private:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	
 	VkRenderPass renderPass;
+	VkPipelineLayout pipelineLayout;
+	VkPipeline graphicsPipeline;
+
+	VkCommandPool commandPool;
+	std::vector<VkCommandBuffer> commandBuffers;
+
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderFinishedSemaphore;
+
 
 	QueueFamilyIndices familyIndices;
 
@@ -74,8 +83,7 @@ private:
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-
-
+	VkShaderModule createShaderModule(const std::vector<char>& code);
 
 	void createInstance();
 	void createSurface();
@@ -84,6 +92,11 @@ private:
 	void createSwapChain();
 	void createImageViews();
 	void createRenderPass();
+	void createGraphicsPipeline();
+	void createFramebuffers();
+	void createCommandPool();
+	void createCommandBuffers();
+	void createSemaphores();
 public:
 	VKRenderer();
 	int initialize(unsigned int width = 640, unsigned int height = 480);
@@ -94,7 +107,6 @@ public:
 	////////////////////////////////////////
 	// everything below to be implemented //
 	////////////////////////////////////////
-	void present();
 
 	void setClearColor(float, float, float, float);
 	void clearBuffer(unsigned int);
@@ -102,6 +114,7 @@ public:
 	void setRenderState(RenderState* ps);
 	// submit work (to render) to the renderer.
 	void submit(Mesh* mesh);
+	void present();
 	void frame();
 
 	Material* makeMaterial(const std::string& name);

@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Vulkan">
       <UniqueIdentifier>{a9196aa2-36c1-4342-9897-643727b10926}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Vulkan\shaders">
+      <UniqueIdentifier>{b0c01465-456d-4280-ac79-358d90af6ec3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -180,6 +183,12 @@
     </None>
     <None Include="..\assets\GL45\VertexShader.glsl">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\assets\vulkan\shader.vert">
+      <Filter>Source Files\Vulkan\shaders</Filter>
+    </None>
+    <None Include="..\assets\vulkan\shader.frag">
+      <Filter>Source Files\Vulkan\shaders</Filter>
     </None>
   </ItemGroup>
 </Project>
