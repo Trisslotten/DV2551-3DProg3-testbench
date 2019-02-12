@@ -906,7 +906,7 @@ Mesh * VKRenderer::makeMesh()
 
 VertexBuffer * VKRenderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
 {
-	return new VertexBufferVK(size, usage, device);
+	return new VertexBufferVK(size, usage, this);
 }
 
 Texture2D * VKRenderer::makeTexture2D()

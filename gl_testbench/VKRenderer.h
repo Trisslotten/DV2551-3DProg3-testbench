@@ -37,6 +37,7 @@ struct SwapChainSupportDetails
 class VKRenderer : public Renderer
 {
 	friend class VKMaterial;
+	friend class VertexBufferVK;
 
 private:
 	SDL_Window *window;

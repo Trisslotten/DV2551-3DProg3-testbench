@@ -19,6 +19,7 @@ public:
 
 	DATA_USAGE usage;
 	VkVertexInputBindingDescription bindingDescription;
+	VkBufferCreateInfo bufferInfo;
 	std::array<VkVertexInputAttributeDescription, 1> attributeDescriptions = {};
 	//static GLuint usageMapping[3];
 
@@ -26,4 +27,5 @@ private:
 	size_t totalSize;
 	VKRenderer* _renderer;
 	VkBuffer _handle;
+	VkDeviceMemory vertexBufferMemory;
 };

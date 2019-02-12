@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="maintestpos.cpp" />
     <ClCompile Include="mainVulkanTest.cpp" />
     <ClCompile Include="MeshVK.cpp" />
     <ClCompile Include="OpenGL\ConstantBufferGL.cpp" />
@@ -178,6 +179,7 @@
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="VertexBufferVK.cpp" />
     <ClCompile Include="VKMaterial.cpp" />
     <ClCompile Include="VKRenderer.cpp" />
   </ItemGroup>
@@ -208,6 +210,7 @@
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="VertexBufferVK.h" />
     <ClInclude Include="VKMaterial.h" />
     <ClInclude Include="VKRenderer.h" />
   </ItemGroup>
