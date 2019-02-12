@@ -753,7 +753,7 @@ void VKRenderer::createCommandBuffers()
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapChainExtent;
 
-		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		VkClearValue clearColor = { _clearC.r, _clearC.g, _clearC.b, _clearC.a };
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 
@@ -817,8 +817,9 @@ int VKRenderer::shutdown() {
 	return 0;
 }
 
-void VKRenderer::setClearColor(float, float, float, float)
+void VKRenderer::setClearColor(float r, float g, float b, float a)
 {
+	_clearC.r = r; _clearC.g = g; _clearC.b = b; _clearC.a = a;
 }
 
 void VKRenderer::clearBuffer(unsigned int)
@@ -829,14 +830,15 @@ void VKRenderer::setRenderState(RenderState * ps)
 {
 }
 
-int perMat = 1;
+//int perMat = 1;
 void VKRenderer::submit(Mesh * mesh)
 {
-	if (perMat) {
+	drawList2[mesh->technique].push_back(mesh);
+	/*if (perMat) {
 		drawList2[mesh->technique].push_back(mesh);
 	}
 	else
-		drawList.push_back(mesh);
+		drawList.push_back(mesh);*/
 }
 
 void VKRenderer::present()

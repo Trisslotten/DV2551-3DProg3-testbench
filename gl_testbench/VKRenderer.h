@@ -105,6 +105,8 @@ private:
 	std::vector<Mesh*> drawList;
 	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
 
+	Color _clearC;
+
 public:
 	VKRenderer();
 	int initialize(unsigned int width = 640, unsigned int height = 480);
