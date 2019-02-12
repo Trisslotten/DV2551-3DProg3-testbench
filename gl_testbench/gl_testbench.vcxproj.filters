@@ -105,7 +105,7 @@
     <ClCompile Include="RenderStateVK.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="VKMaterial.cpp">
+    <ClCompile Include="MaterialVK.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="VertexBufferVK.cpp">
@@ -202,6 +202,15 @@
     </ClInclude>
     <ClInclude Include="VertexBufferVK.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshVK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStateVK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialVK.h">
+      <Filter>Source Files\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

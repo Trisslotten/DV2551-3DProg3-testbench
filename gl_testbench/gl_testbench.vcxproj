@@ -181,6 +181,7 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="VertexBufferVK.cpp" />
     <ClCompile Include="VKMaterial.cpp" />
+    <ClCompile Include="MaterialVK.cpp" />
     <ClCompile Include="VKRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +213,7 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VertexBufferVK.h" />
     <ClInclude Include="VKMaterial.h" />
+    <ClInclude Include="MaterialVK.h" />
     <ClInclude Include="VKRenderer.h" />
   </ItemGroup>
   <ItemGroup>
