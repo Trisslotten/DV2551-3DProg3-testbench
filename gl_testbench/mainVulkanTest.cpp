@@ -1,9 +1,18 @@
 #include "VKRenderer.h"
 
+#include "VKMaterial.h"
+
 VKRenderer* vkr;
 int main() {
 	vkr = new VKRenderer();
 	vkr->initialize(800, 600);
+
+	
+	auto vkm = new VKMaterial();
+	vkm->setShader("../assets/vulkan/shader.frag", Material::ShaderType::PS);
+	vkm->compileMaterial(std::string());
+
+
 	SDL_Event windowEvent;
 	while (true)
 	{

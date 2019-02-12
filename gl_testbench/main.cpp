@@ -1,4 +1,4 @@
-/*#include <string>
+#include <string>
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
 #include <SDL_timer.h>
@@ -294,7 +294,7 @@ void shutdown() {
 	renderer->shutdown();
 };
 
-int main(int argc, char *argv[])
+int main1(int argc, char *argv[])
 {
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
 	renderer->initialize(800,600);
@@ -305,4 +305,3 @@ int main(int argc, char *argv[])
 	shutdown();
 	return 0;
 };
-*/
