@@ -178,7 +178,7 @@
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="VertexBufferVK.cpp" />
+    <ClCompile Include="VKMaterial.cpp" />
     <ClCompile Include="VKRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -208,7 +208,7 @@
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="VertexBufferVK.h" />
+    <ClInclude Include="VKMaterial.h" />
     <ClInclude Include="VKRenderer.h" />
   </ItemGroup>
   <ItemGroup>
