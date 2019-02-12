@@ -1,14 +1,13 @@
 #pragma once
 #include "VertexBuffer.h"
 #include "../include/vulkan/vulkan.h"
-#include "VKRenderer.h"
 #include <array>
 
 class VertexBufferVK :
 	public VertexBuffer
 {
 public:
-	VertexBufferVK(size_t size, VertexBuffer::DATA_USAGE usage, VKRenderer* renderer);
+	VertexBufferVK(size_t size, VertexBuffer::DATA_USAGE usage, VkDevice device, VkPhysicalDevice pdevice);
 	VertexBufferVK(size_t size, VertexBuffer::DATA_USAGE usage);
 	~VertexBufferVK();
 
@@ -22,10 +21,12 @@ public:
 	VkBufferCreateInfo bufferInfo;
 	std::array<VkVertexInputAttributeDescription, 1> attributeDescriptions = {};
 	//static GLuint usageMapping[3];
-
+	VkBuffer _handle;
 private:
 	size_t totalSize;
-	VKRenderer* _renderer;
-	VkBuffer _handle;
+	//VKRenderer* _renderer;
+	VkDevice _device;
+	VkPhysicalDevice _physicalDevice;
+	
 	VkDeviceMemory vertexBufferMemory;
 };

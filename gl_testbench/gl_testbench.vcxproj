@@ -180,7 +180,6 @@
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="VertexBufferVK.cpp" />
-    <ClCompile Include="VKMaterial.cpp" />
     <ClCompile Include="MaterialVK.cpp" />
     <ClCompile Include="VKRenderer.cpp" />
   </ItemGroup>

@@ -762,6 +762,11 @@ void VKRenderer::createCommandBuffers()
 
 		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
+		//bind pipelines?!?!?
+		//VkBuffer vertexBuffers[] = { vBuffers.data() };
+		VkDeviceSize offsets[] = { 0 };
+		//vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vBuffers.data(), offsets);
+
 		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffers[i]);
@@ -906,7 +911,9 @@ Mesh * VKRenderer::makeMesh()
 
 VertexBuffer * VKRenderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
 {
-	return new VertexBufferVK(size, usage, this);
+	VertexBufferVK* vbuf = new VertexBufferVK(size, usage, device, physicalDevice);
+	this->vBuffers.push_back(vbuf);
+	return vbuf;
 }
 
 Texture2D * VKRenderer::makeTexture2D()
