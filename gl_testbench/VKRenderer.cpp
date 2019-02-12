@@ -1,5 +1,7 @@
 #define NOMINMAX
 #include "VKRenderer.h"
+#include "RenderStateVK.h"
+#include "MeshVK.h"
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -751,7 +753,7 @@ void VKRenderer::createCommandBuffers()
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapChainExtent;
 
-		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		VkClearValue clearColor = { _clearC.r, _clearC.g, _clearC.b, _clearC.a };
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 
@@ -819,8 +821,9 @@ int VKRenderer::shutdown() {
 	return 0;
 }
 
-void VKRenderer::setClearColor(float, float, float, float)
+void VKRenderer::setClearColor(float r, float g, float b, float a)
 {
+	_clearC.r = r; _clearC.g = g; _clearC.b = b; _clearC.a = a;
 }
 
 void VKRenderer::clearBuffer(unsigned int)
@@ -831,8 +834,15 @@ void VKRenderer::setRenderState(RenderState * ps)
 {
 }
 
+//int perMat = 1;
 void VKRenderer::submit(Mesh * mesh)
 {
+	drawList2[mesh->technique].push_back(mesh);
+	/*if (perMat) {
+		drawList2[mesh->technique].push_back(mesh);
+	}
+	else
+		drawList.push_back(mesh);*/
 }
 
 void VKRenderer::present()
@@ -890,7 +900,7 @@ Material * VKRenderer::makeMaterial(const std::string & name)
 
 Mesh * VKRenderer::makeMesh()
 {
-	return nullptr;
+	return new MeshVK();
 }
 
 VertexBuffer * VKRenderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
@@ -910,17 +920,20 @@ Sampler2D * VKRenderer::makeSampler2D()
 
 RenderState * VKRenderer::makeRenderState()
 {
-	return nullptr;
+	RenderStateVK* rs = new RenderStateVK();
+	rs->setGlobalWireFrame(&this->globalWireframeMode);
+	rs->setWireFrame(false);
+	return rs;
 }
 
 std::string VKRenderer::getShaderPath()
 {
-	return std::string();
+	return std::string("..\\assets\\vulkan\\");
 }
 
 std::string VKRenderer::getShaderExtension()
 {
-	return std::string();
+	return std::string(".glsl");
 }
 
 ConstantBuffer * VKRenderer::makeConstantBuffer(std::string NAME, unsigned int location)
@@ -928,7 +941,8 @@ ConstantBuffer * VKRenderer::makeConstantBuffer(std::string NAME, unsigned int l
 	return nullptr;
 }
 
-Technique * VKRenderer::makeTechnique(Material *, RenderState *)
+Technique * VKRenderer::makeTechnique(Material *m, RenderState *r)
 {
-	return nullptr;
+	Technique* t = new Technique(m, r);
+	return t;
 }
