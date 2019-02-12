@@ -109,7 +109,8 @@ private:
 	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
 
 	Color _clearC;
-
+	//std::vector<VkBuffer> vBuffers;
+	std::vector<VertexBufferVK*> vBuffers;
 public:
 	VKRenderer();
 	int initialize(unsigned int width = 640, unsigned int height = 480);
