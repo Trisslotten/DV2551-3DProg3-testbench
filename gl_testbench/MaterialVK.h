@@ -1,11 +1,10 @@
 #pragma once
 
-
 #include "VKRenderer.h"
 #include "Material.h"
 #include <string>
 
-class VKMaterial : public Material
+class MaterialVK : public Material
 {
 	VKRenderer* renderer;
 
@@ -14,7 +13,7 @@ class VKMaterial : public Material
 
 public:
 
-	VKMaterial(VKRenderer* renderer) : renderer(renderer)
+	MaterialVK(VKRenderer* renderer) : renderer(renderer)
 	{}
 
 	virtual void setShader(const std::string & shaderFileName, ShaderType type) override;

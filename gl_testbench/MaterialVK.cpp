@@ -1,11 +1,11 @@
-#include "VKMaterial.h"
+#include "MaterialVK.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <vulkan.h>
 
-void VKMaterial::expandShader(std::string & shader, ShaderType type)
+void MaterialVK::expandShader(std::string & shader, ShaderType type)
 {
 	auto elem = shaderDefines.find(type);
 	if (elem != shaderDefines.end())
@@ -18,7 +18,7 @@ void VKMaterial::expandShader(std::string & shader, ShaderType type)
 	shader = "#version 450\n" + shader;
 }
 
-void VKMaterial::setShader(const std::string & shaderFileName, ShaderType type)
+void MaterialVK::setShader(const std::string & shaderFileName, ShaderType type)
 {
 	auto elem = shaderFileNames.find(type);
 	if (elem != shaderFileNames.end())
@@ -27,11 +27,11 @@ void VKMaterial::setShader(const std::string & shaderFileName, ShaderType type)
 	shaderFileNames[type] = shaderFileName;
 }
 
-void VKMaterial::removeShader(ShaderType type)
+void MaterialVK::removeShader(ShaderType type)
 {
 }
 
-void VKMaterial::setDiffuse(Color c)
+void MaterialVK::setDiffuse(Color c)
 {
 	color = c;
 }
@@ -53,7 +53,7 @@ static std::vector<char> readBinFile(const std::string& filename)
 	return buffer;
 }
 
-VkShaderModule VKMaterial::createShaderModule(const std::vector<char>& code)
+VkShaderModule MaterialVK::createShaderModule(const std::vector<char>& code)
 {
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -67,7 +67,7 @@ VkShaderModule VKMaterial::createShaderModule(const std::vector<char>& code)
 	return shaderModule;
 }
 
-int VKMaterial::compileMaterial(std::string & errString)
+int MaterialVK::compileMaterial(std::string & errString)
 {
 	for (auto elem : shaderFileNames)
 	{
@@ -89,7 +89,6 @@ int VKMaterial::compileMaterial(std::string & errString)
 			command += "vert";
 		if (elem.first == ShaderType::PS)
 			command += "frag";
-
 		command += " -o " + compiledFilename;
 		system(command.c_str());
 
@@ -100,19 +99,19 @@ int VKMaterial::compileMaterial(std::string & errString)
 	return 0;
 }
 
-void VKMaterial::addConstantBuffer(std::string name, unsigned int location)
+void MaterialVK::addConstantBuffer(std::string name, unsigned int location)
 {
 }
 
-void VKMaterial::updateConstantBuffer(const void * data, size_t size, unsigned int location)
+void MaterialVK::updateConstantBuffer(const void * data, size_t size, unsigned int location)
 {
 }
 
-int VKMaterial::enable()
+int MaterialVK::enable()
 {
 	return 0;
 }
 
-void VKMaterial::disable()
+void MaterialVK::disable()
 {
 }

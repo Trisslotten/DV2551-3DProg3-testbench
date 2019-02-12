@@ -105,7 +105,7 @@
     <ClCompile Include="RenderStateVK.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="VKMaterial.cpp">
+    <ClCompile Include="MaterialVK.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
@@ -183,6 +183,15 @@
       <Filter>Source Files\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="VKRenderer.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshVK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStateVK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialVK.h">
       <Filter>Source Files\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
