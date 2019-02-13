@@ -111,7 +111,6 @@ private:
 	void createSwapChain();
 	void createImageViews();
 	void createRenderPass();
-	void createGraphicsPipeline();
 	void createFramebuffers();
 	void createCommandPool();
 	void createCommandBuffers();
@@ -146,11 +145,6 @@ public:
 	int initialize(unsigned int width = 640, unsigned int height = 480);
 	void setWinTitle(const char* title);
 	int shutdown();
-
-
-	////////////////////////////////////////
-	// everything below to be implemented //
-	////////////////////////////////////////
 
 	void setClearColor(float, float, float, float);
 	void clearBuffer(unsigned int);
