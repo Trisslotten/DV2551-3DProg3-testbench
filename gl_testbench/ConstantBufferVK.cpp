@@ -60,9 +60,11 @@ void ConstantBufferVK::setData(const void * data, size_t size, Material * m, uns
 		this->size = size;
 		init = true;
 	}
+	/*
 	if (vkBindBufferMemory(_device, _handle, cBufferMemory, 0) != VK_SUCCESS) { // offset);
 		throw std::runtime_error("failed to bind constant buffer!");
 	}
+	*/
 	void* gpuData;
 	vkMapMemory(_device, cBufferMemory, 0, size, 0, &gpuData);
 	memcpy(gpuData, data, (size_t)bufferInfo.size);
