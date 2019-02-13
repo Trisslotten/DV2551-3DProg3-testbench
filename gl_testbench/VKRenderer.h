@@ -5,6 +5,7 @@
 #include <SDL_vulkan.h>
 #undef main //?????????????? -> https://stackoverflow.com/questions/6847360/error-lnk2019-unresolved-external-symbol-main-referenced-in-function-tmainc
 #include <vulkan.h>
+#include <set>
 
 #pragma comment(lib,"SDL2.lib")
 #pragma comment(lib,"SDL2main.lib")
@@ -18,7 +19,8 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-class VKMaterial;
+class MaterialVK;
+class MeshVK;
 
 struct QueueFamilyIndices
 {
@@ -108,6 +110,8 @@ private:
 	void createCommandBuffers();
 	void createSemaphores();
 
+	void createPipelines();
+
 	//Renderer class variables
 	std::vector<Mesh*> drawList;
 	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
@@ -117,7 +121,15 @@ private:
 	std::vector<VertexBufferVK*> vBuffers;
 	std::vector<ConstantBufferVK*> cBuffers;
 
-	VKMaterial* boundMaterial = nullptr;
+	std::vector<MeshVK*> meshes;
+
+	long long numFrames = 0;
+
+	MaterialVK* boundMaterial = nullptr;
+
+	std::unordered_map<std::string, MaterialVK*> materials;
+
+	std::unordered_map<MeshVK*, VkPipeline> pipelines;
 public:
 	VKRenderer();
 	int initialize(unsigned int width = 640, unsigned int height = 480);
