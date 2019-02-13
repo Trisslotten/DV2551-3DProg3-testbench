@@ -121,6 +121,7 @@ void MaterialVK::updateConstantBuffer(const void * data, size_t size, unsigned i
 
 int MaterialVK::enable()
 {
+	// bind Constant buffer here
 	return 0;
 }
 

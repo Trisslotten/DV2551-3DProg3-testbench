@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="ConstantBufferVK.cpp" />
+    <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="maintestpos.cpp" />
     <ClCompile Include="mainVulkanTest.cpp" />
     <ClCompile Include="MeshVK.cpp" />
@@ -169,7 +170,9 @@
     <ClCompile Include="OpenGL\VertexBufferGL.cpp" />
     <ClCompile Include="RenderStateVK.cpp" />
     <ClCompile Include="Sampler2D.cpp" />
+    <ClCompile Include="Sampler2DVK.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Texture2DVK.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
@@ -188,6 +191,7 @@
     <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ConstantBufferVK.h" />
+    <ClInclude Include="lodepng.h" />
     <ClInclude Include="MeshVK.h" />
     <ClInclude Include="OpenGL\ConstantBufferGL.h" />
     <ClInclude Include="OpenGL\MaterialGL.h" />
@@ -201,7 +205,9 @@
     <ClInclude Include="OpenGL\VertexBufferGL.h" />
     <ClInclude Include="RenderStateVK.h" />
     <ClInclude Include="Sampler2D.h" />
+    <ClInclude Include="Sampler2DVK.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Texture2DVK.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="IA.h" />
