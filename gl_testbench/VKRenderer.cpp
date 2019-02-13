@@ -992,6 +992,7 @@ void VKRenderer::setRenderState(RenderState * ps)
 //int perMat = 1;
 void VKRenderer::submit(Mesh * mesh)
 {
+	drawList.push_back(mesh);
 	drawList2[mesh->technique].push_back(mesh);
 	/*if (perMat) {
 		drawList2[mesh->technique].push_back(mesh);
