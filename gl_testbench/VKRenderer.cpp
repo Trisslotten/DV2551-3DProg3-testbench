@@ -1116,7 +1116,7 @@ void VKRenderer::setRenderState(RenderState * ps)
 void VKRenderer::submit(Mesh * mesh)
 {
 	drawList.push_back(mesh);
-	drawList2[mesh->technique].push_back(mesh);
+	//drawList2[mesh->technique].push_back(mesh);
 	/*if (perMat) {
 		drawList2[mesh->technique].push_back(mesh);
 	}
@@ -1156,6 +1156,12 @@ void VKRenderer::frame()
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+
+	for (auto mesh : drawList)
+	{
+
+	}
 
 	if (vkBeginCommandBuffer(currentCommandBuffer, &beginInfo) != VK_SUCCESS)
 		throw std::runtime_error("failed to begin recording command buffer!");
