@@ -1,4 +1,4 @@
-/*#include <string>
+#include <string>
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
 #include <SDL_timer.h>
@@ -251,7 +251,7 @@ int initialiseTestbench()
 		// we can create a constant buffer outside the material, for example as part of the Mesh.
 		m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
 		
-		m->technique = techniques[ i % 4];
+		m->technique = techniques[i % 4];
 		if (i % 4 == 2)
 			m->addTexture(textures[0], DIFFUSE_SLOT);
 
@@ -305,4 +305,3 @@ int main1(int argc, char *argv[])
 	shutdown();
 	return 0;
 };
-*/
