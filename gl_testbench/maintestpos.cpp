@@ -104,10 +104,10 @@ void updateScene()
 				0.0
 			};
 			//scene[i]->txBuffer->setData(&trans, sizeof(trans), scene[i]->technique->getMaterial(), TRANSLATION);
-			scene[i]->txBuffer->setData(&trans, sizeof(trans), nullptr, TRANSLATION);
+			scene[i]->txBuffer->setData(&trans, sizeof(trans), scene[i]->technique->getMaterial(), TRANSLATION);
 		}
 		// just to make them move...
-		shift += max(TOTAL_TRIS / 1000.0, TOTAL_TRIS / 100.0);
+		shift += 1;// max(TOTAL_TRIS / 1000.0, TOTAL_TRIS / 100.0);
 	}
 	return;
 };
@@ -161,7 +161,7 @@ int initialiseTestbench()
 
 	float degToRad = M_PI / 180.0;
 	float scale = (float)TOTAL_PLACES / 359.9;
-	for (int a = 0; a < TOTAL_PLACES; a++)
+	for (int a = 0; a < TOTAL_TRIS; a++)
 	{
 		xt[a] = 0.8f * cosf(degToRad * ((float)a / scale) * 3.0);
 		yt[a] = 0.8f * sinf(degToRad * ((float)a / scale) * 2.0);
@@ -261,6 +261,7 @@ int initialiseTestbench()
 
 		scene.push_back(m);
 	}
+	updateScene();
 	return 0;
 }
 

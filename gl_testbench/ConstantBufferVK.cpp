@@ -11,6 +11,12 @@ ConstantBufferVK::ConstantBufferVK(std::string NAME, unsigned int location, VkDe
 	this->name = NAME;
 	this->location = location;
 
+	uboLayoutBinding = {};
+	uboLayoutBinding.binding = location;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
 }
 
 ConstantBufferVK::~ConstantBufferVK()
@@ -51,6 +57,7 @@ void ConstantBufferVK::setData(const void * data, size_t size, Material * m, uns
 		if (vkAllocateMemory(_device, &allocInfo, nullptr, &cBufferMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate constant buffer memory!");
 		}
+		this->size = size;
 		init = true;
 	}
 	/*
@@ -66,10 +73,5 @@ void ConstantBufferVK::setData(const void * data, size_t size, Material * m, uns
 
 void ConstantBufferVK::bind(Material *)
 {
-	uboLayoutBinding = {};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+	
 }

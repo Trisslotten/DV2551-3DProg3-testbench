@@ -75,6 +75,7 @@ int VKRenderer::initialize(unsigned int width, unsigned int height) {
 	this->createCommandPool();
 	this->createCommandBuffers();
 	this->createSemaphores();
+	this->createDescriptorPool();
 
 	return 0;
 }
@@ -816,13 +817,59 @@ void VKRenderer::createSemaphores()
 	}
 }
 
+void VKRenderer::createDescriptorPool()
+{
+	VkDescriptorPoolSize poolSize = {};
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = static_cast<uint32_t>(1);
+	VkDescriptorPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.maxSets = static_cast<uint32_t>(1);
+
+	if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor pool!");
+	}
+}
+
+void VKRenderer::createDescriptorSets()
+{
+
+}
+
 void VKRenderer::createPipelines()
 {
+	std::vector<VkDescriptorSetLayoutBinding> bindingLayouts;
+	for (auto ub : cBuffers) {
+		bindingLayouts.push_back(ub->uboLayoutBinding);
+	}
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = bindingLayouts.size();
+	layoutInfo.pBindings = bindingLayouts.data();
+
+	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor set layout!");
+	}
+
+	//std::vector<VkDescriptorSetLayout> layouts(1, descriptorSetLayout);
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = descriptorPool;
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(1);
+	allocInfo.pSetLayouts = &descriptorSetLayout;
+
+	if (vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0; // Optional
-	pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+	pipelineLayoutInfo.setLayoutCount = 1; // Optional
+	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; // Optional
 	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -837,8 +884,8 @@ void VKRenderer::createPipelines()
 	viewport.y = 0.0f;
 	viewport.width = (float)swapChainExtent.width;
 	viewport.height = (float)swapChainExtent.height;
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
+	viewport.minDepth = -100.0f;
+	viewport.maxDepth = 100.0f;
 
 	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
@@ -913,7 +960,6 @@ void VKRenderer::createPipelines()
 
 				attributeDescription.binding = vb.first;
 				attributeDescription.location = vb.first; //0?
-				//attributeDescription.offset = vb.second.offset;
 				attributeDescription.offset = 0;
 				switch (vb.second.sizeElement)
 				{
@@ -929,6 +975,26 @@ void VKRenderer::createPipelines()
 			}
 			vertexInputInfo.pVertexBindingDescriptions = bindDescs.data();
 			vertexInputInfo.pVertexAttributeDescriptions = attrDescs.data();
+
+			
+			/*VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = ((ConstantBufferVK*)(mesh->txBuffer))->_handle;
+			bufferInfo.offset = 0;
+			bufferInfo.range = ((ConstantBufferVK*)(mesh->txBuffer))->size;
+
+			VkWriteDescriptorSet descriptorWrite = {};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = descriptorSet;
+			descriptorWrite.dstBinding = ((ConstantBufferVK*)(mesh->txBuffer))->location;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			descriptorWrite.pImageInfo = nullptr; // Optional
+			descriptorWrite.pTexelBufferView = nullptr; // Optional
+
+			vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);*/
 
 
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -946,7 +1012,6 @@ void VKRenderer::createPipelines()
 			rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 			//rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
 			rasterizer.lineWidth = 1.0f;
-			//rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 			rasterizer.cullMode = VK_CULL_MODE_NONE;
 			rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 			rasterizer.depthBiasEnable = VK_FALSE;
@@ -1021,7 +1086,7 @@ int VKRenderer::shutdown() {
 
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
-	
+	vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 	//destroy sdl window here
 	SDL_Quit();
 
@@ -1121,6 +1186,24 @@ void VKRenderer::frame()
 		VkPipeline currentPipeline = pipelines[static_cast<MeshVK*>(mesh)];
 		vkCmdBindPipeline(currentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline);
 
+		VkDescriptorBufferInfo bufferInfo = {};
+		bufferInfo.buffer = static_cast<ConstantBufferVK*>(mesh->txBuffer)->_handle;// ((ConstantBufferVK*)(mesh->txBuffer))->_handle;
+		bufferInfo.offset = 0;
+		bufferInfo.range = ((ConstantBufferVK*)(mesh->txBuffer))->size;
+
+		VkWriteDescriptorSet descriptorWrite = {};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = descriptorSet;
+		descriptorWrite.dstBinding = ((ConstantBufferVK*)(mesh->txBuffer))->location;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+
+		descriptorWrite.pBufferInfo = &bufferInfo;
+		descriptorWrite.pImageInfo = nullptr; // Optional
+		descriptorWrite.pTexelBufferView = nullptr; // Optional
+
+		vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 
 		std::vector<VkBuffer> buffers;
 		std::vector<VkDeviceSize> offsets;
@@ -1128,12 +1211,14 @@ void VKRenderer::frame()
 		{
 			VertexBufferVK* vbvk = static_cast<VertexBufferVK*>(vb.second.buffer);
 			buffers.push_back(vbvk->_handle);
-			offsets.push_back(vb.second.offset);
+			offsets.push_back( vb.second.offset);
 		}
 		vkCmdBindVertexBuffers(currentCommandBuffer, 0, buffers.size(), buffers.data(), offsets.data());
+		vkCmdBindDescriptorSets(currentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 
 		vkCmdDraw(currentCommandBuffer, numberElements, 1, 0, 0);
 	}
+	drawList.clear();
 
 	vkCmdEndRenderPass(currentCommandBuffer);
 
