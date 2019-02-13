@@ -846,12 +846,14 @@ void VKRenderer::createPipelines()
 {
 	std::vector<VkDescriptorSetLayoutBinding> bindingLayouts;
 	for (auto ub : cBuffers) {
-		bindingLayouts.push_back(ub->uboLayoutBinding);
+		//bindingLayouts.push_back(ub->uboLayoutBinding);
 	}
+	bindingLayouts.push_back(cBuffers[0]->uboLayoutBinding);
+
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = bindingLayouts.size();
+	layoutInfo.bindingCount = 1;// bindingLayouts.size();
 	layoutInfo.pBindings = bindingLayouts.data();
 
 	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
