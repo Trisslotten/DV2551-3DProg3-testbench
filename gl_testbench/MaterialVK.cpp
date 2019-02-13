@@ -70,7 +70,6 @@ VkShaderModule MaterialVK::createShaderModule(const std::vector<char>& code)
 // TODO: error checking
 int MaterialVK::compileMaterial(std::string & errString)
 {
-	VkPipelineShaderStageCreateInfo shaderStageInfos[2];
 	for (auto elem : shaderFileNames)
 	{
 		std::ifstream file(elem.second);

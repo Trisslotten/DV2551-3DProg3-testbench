@@ -25,7 +25,7 @@ vector<Texture2D*> textures;
 vector<Sampler2D*> samplers;
 
 VertexBuffer* pos;
-//VertexBuffer* nor;
+VertexBuffer* nor;
 VertexBuffer* uvs;
 
 // forward decls
@@ -227,7 +227,7 @@ int initialiseTestbench()
 	*/
 	// pre-allocate one single vertex buffer for ALL triangles
 	pos = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triPos), VertexBuffer::DATA_USAGE::STATIC);
-	//nor = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triNor), VertexBuffer::DATA_USAGE::STATIC);
+	nor = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triNor), VertexBuffer::DATA_USAGE::STATIC);
 	uvs = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triUV), VertexBuffer::DATA_USAGE::STATIC);
 
 	// Create a mesh array with 3 basic vertex buffers.
@@ -241,10 +241,10 @@ int initialiseTestbench()
 		m->addIAVertexBufferBinding(pos, offset, numberOfPosElements, sizeof(float4), POSITION);
 		//m->bindIAVertexBuffer(POSITION);
 
-		/*constexpr auto numberOfNorElements = std::extent<decltype(triNor)>::value;
+		constexpr auto numberOfNorElements = std::extent<decltype(triNor)>::value;
 		offset = i * sizeof(triNor);
 		nor->setData(triNor, sizeof(triNor), offset);
-		m->addIAVertexBufferBinding(nor, offset, numberOfNorElements, sizeof(float4), NORMAL);*/
+		m->addIAVertexBufferBinding(nor, offset, numberOfNorElements, sizeof(float4), NORMAL);
 
 		constexpr auto numberOfUVElements = std::extent<decltype(triUV)>::value;
 		offset = i * sizeof(triUV);

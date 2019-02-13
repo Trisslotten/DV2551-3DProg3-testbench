@@ -51,15 +51,16 @@ VertexBufferVK::~VertexBufferVK()
 
 void VertexBufferVK::setData(const void * data, size_t size, size_t offset)
 {
+	void* gpuData;
 	vkBindBufferMemory(_device, _handle, vertexBufferMemory, 0);// offset);
-	vkMapMemory(_device, vertexBufferMemory, offset, size, 0, (void**)&data);
+	vkMapMemory(_device, vertexBufferMemory, offset, size, 0, &gpuData);
+	memcpy(gpuData, data, (size_t)bufferInfo.size);
+	vkUnmapMemory(_device, vertexBufferMemory);
 }
 
 void VertexBufferVK::bind(size_t offset, size_t size, unsigned int location)
 {
 
-
-	
 	//attributeDescriptions[0].offset = offset;
 }
 

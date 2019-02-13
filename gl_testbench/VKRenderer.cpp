@@ -732,7 +732,7 @@ void VKRenderer::createCommandPool()
 	VkCommandPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
-	poolInfo.flags = 0; // Optional
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // Optional
 
 	if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
 	{
@@ -867,10 +867,10 @@ void VKRenderer::createPipelines()
 				attributeDescription.offset = vb.second.offset;
 				switch (vb.second.sizeElement)
 				{
-				case 48:
+				case sizeof(float) * 4:
 					attributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
 					break;
-				case 24:
+				case sizeof(float) * 2:
 					attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
 					break;
 				}
@@ -879,6 +879,7 @@ void VKRenderer::createPipelines()
 			}
 			vertexInputInfo.pVertexBindingDescriptions = bindDescs.data();
 			vertexInputInfo.pVertexAttributeDescriptions = attrDescs.data();
+
 
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 			inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -1066,6 +1067,17 @@ void VKRenderer::frame()
 		VkPipeline currentPipeline = pipelines[static_cast<MeshVK*>(mesh)];
 		vkCmdBindPipeline(currentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline);
 
+
+		std::vector<VkBuffer> buffers;
+		std::vector<VkDeviceSize> offsets;
+		for (auto vb : mesh->geometryBuffers)
+		{
+			VertexBufferVK* vbvk = static_cast<VertexBufferVK*>(vb.second.buffer);
+			buffers.push_back(vbvk->_handle);
+			offsets.push_back(vb.second.offset);
+		}
+		vkCmdBindVertexBuffers(currentCommandBuffer, 0, buffers.size(), buffers.data(), offsets.data());
+
 		vkCmdDraw(currentCommandBuffer, numberElements, 1, 0, 0);
 	}
 
@@ -1087,6 +1099,12 @@ void VKRenderer::frame()
 	{
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
+
+	////////////////////////////////
+	// TODO: remove
+	////////////////////////////////
+	vkQueueWaitIdle(graphicsQueue);
+	////////////////////////////////
 
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;

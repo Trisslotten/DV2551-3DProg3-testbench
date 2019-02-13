@@ -53,7 +53,10 @@ void ConstantBufferVK::setData(const void * data, size_t size, Material * m, uns
 		}
 		init = true;
 	}
-	vkMapMemory(_device, cBufferMemory, 0, size, 0, (void**)&data);
+	void* gpuData;
+	vkMapMemory(_device, cBufferMemory, 0, size, 0, &gpuData);
+	memcpy(gpuData, data, (size_t)bufferInfo.size);
+	vkUnmapMemory(_device, cBufferMemory);
 }
 
 void ConstantBufferVK::bind(Material *)
