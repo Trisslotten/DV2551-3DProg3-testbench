@@ -107,7 +107,7 @@ void updateScene()
 			scene[i]->txBuffer->setData(&trans, sizeof(trans), scene[i]->technique->getMaterial(), TRANSLATION);
 		}
 		// just to make them move...
-		shift += 1;// max(TOTAL_TRIS / 1000.0, TOTAL_TRIS / 100.0);
+		shift += max(TOTAL_TRIS / 1000.0, TOTAL_TRIS / 100.0);
 	}
 	return;
 };
