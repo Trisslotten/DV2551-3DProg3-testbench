@@ -40,7 +40,9 @@ VertexBufferVK::VertexBufferVK(size_t size, VertexBuffer::DATA_USAGE usage, VkDe
 		throw std::runtime_error("failed to allocate vertex buffer memory!");
 	}
 
-
+	if (vkBindBufferMemory(_device, _handle, vertexBufferMemory, 0) != VK_SUCCESS) { // offset);
+		throw std::runtime_error("failed to bind vertex buffer!");
+	}
 }
 
 VertexBufferVK::~VertexBufferVK()
@@ -51,9 +53,14 @@ VertexBufferVK::~VertexBufferVK()
 
 void VertexBufferVK::setData(const void * data, size_t size, size_t offset)
 {
+	
+	
 	void* gpuData;
 	vkBindBufferMemory(_device, _handle, vertexBufferMemory, 0);// offset);
-	vkMapMemory(_device, vertexBufferMemory, offset, size, 0, &gpuData);
+	if (vkMapMemory(_device, vertexBufferMemory, offset, size, 0, &gpuData) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to map vertex data!");
+	}
 	memcpy(gpuData, data, (size_t)bufferInfo.size);
 	vkUnmapMemory(_device, vertexBufferMemory);
 }

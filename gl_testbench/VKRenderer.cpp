@@ -1062,7 +1062,8 @@ void VKRenderer::frame()
 		for (auto element : mesh->geometryBuffers)
 			mesh->bindIAVertexBuffer(element.first);
 		size_t numberElements = mesh->geometryBuffers[0].numElements;
-		mesh->txBuffer->bind(mesh->technique->getMaterial());
+		mesh->txBuffer->bind(nullptr);
+		//mesh->txBuffer->bind(mesh->technique->getMaterial());
 
 		VkPipeline currentPipeline = pipelines[static_cast<MeshVK*>(mesh)];
 		vkCmdBindPipeline(currentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline);
