@@ -39,6 +39,8 @@ VertexBufferVK::VertexBufferVK(size_t size, VertexBuffer::DATA_USAGE usage, VkDe
 	if (vkAllocateMemory(_device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate vertex buffer memory!");
 	}
+
+
 }
 
 VertexBufferVK::~VertexBufferVK()
@@ -51,20 +53,29 @@ VertexBufferVK::~VertexBufferVK()
 void VertexBufferVK::setData(const void * data, size_t size, size_t offset)
 {
 	vkBindBufferMemory(_device, _handle, vertexBufferMemory, offset);
-	vkMapMemory(_device, vertexBufferMemory, offset, bufferInfo.size, 0, (void**)&data);
+	vkMapMemory(_device, vertexBufferMemory, offset, size, 0, (void**)&data);
 }
 
 void VertexBufferVK::bind(size_t offset, size_t size, unsigned int location)
 {
-	bindingDescription.binding = 0;
+	bindingDescription.binding = 0; //location?
 	bindingDescription.stride = size;
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 	
-	attributeDescriptions[0].binding = 0;
-	attributeDescriptions[0].location = location;
+	attributeDescription.binding = 0;
+	attributeDescription.location = location; //0?
 
-	attributeDescriptions[0].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-	attributeDescriptions[0].offset = offset;
+	switch (size) {
+	case 48:
+		attributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+		break;
+	case 24:
+		attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+		break;
+	}
+
+	
+	//attributeDescriptions[0].offset = offset;
 }
 
 void VertexBufferVK::unbind()

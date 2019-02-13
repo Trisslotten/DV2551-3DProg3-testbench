@@ -1,4 +1,4 @@
-#include "VKRenderer.h"
+/*#include "VKRenderer.h"
 
 #include "VKMaterial.h"
 
@@ -29,4 +29,4 @@ int main() {
 	delete vkr;
 	system("pause");
 	return 0;
-}
+}*/

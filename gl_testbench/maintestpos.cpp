@@ -26,7 +26,7 @@ vector<Sampler2D*> samplers;
 
 VertexBuffer* pos;
 //VertexBuffer* nor;
-//VertexBuffer* uvs;
+VertexBuffer* uvs;
 
 // forward decls
 void updateScene();
@@ -227,7 +227,7 @@ int initialiseTestbench()
 	// pre-allocate one single vertex buffer for ALL triangles
 	pos = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triPos), VertexBuffer::DATA_USAGE::STATIC);
 	//nor = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triNor), VertexBuffer::DATA_USAGE::STATIC);
-	//uvs = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triUV), VertexBuffer::DATA_USAGE::STATIC);
+	uvs = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triUV), VertexBuffer::DATA_USAGE::STATIC);
 
 	// Create a mesh array with 3 basic vertex buffers.
 	for (int i = 0; i < TOTAL_TRIS; i++) {
@@ -238,16 +238,18 @@ int initialiseTestbench()
 		size_t offset = i * sizeof(triPos);
 		pos->setData(triPos, sizeof(triPos), offset);
 		m->addIAVertexBufferBinding(pos, offset, numberOfPosElements, sizeof(float4), POSITION);
+		//m->bindIAVertexBuffer(POSITION);
 
 		/*constexpr auto numberOfNorElements = std::extent<decltype(triNor)>::value;
 		offset = i * sizeof(triNor);
 		nor->setData(triNor, sizeof(triNor), offset);
-		m->addIAVertexBufferBinding(nor, offset, numberOfNorElements, sizeof(float4), NORMAL);
+		m->addIAVertexBufferBinding(nor, offset, numberOfNorElements, sizeof(float4), NORMAL);*/
 
 		constexpr auto numberOfUVElements = std::extent<decltype(triUV)>::value;
 		offset = i * sizeof(triUV);
 		uvs->setData(triUV, sizeof(triUV), offset);
-		m->addIAVertexBufferBinding(uvs, offset, numberOfUVElements, sizeof(float2), TEXTCOORD);*/
+		m->addIAVertexBufferBinding(uvs, offset, numberOfUVElements, sizeof(float2), TEXTCOORD);
+		//m->bindIAVertexBuffer(TEXTCOORD);
 
 		// we can create a constant buffer outside the material, for example as part of the Mesh.
 		//m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
@@ -295,7 +297,7 @@ void shutdown() {
 	renderer->shutdown();
 };
 
-int main1(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	renderer = new VKRenderer();// Renderer::makeRenderer(Renderer::BACKEND::GL45);
 	renderer->initialize(800, 600);
