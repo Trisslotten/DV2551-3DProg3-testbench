@@ -61,21 +61,7 @@ void VertexBufferVK::setData(const void * data, size_t size, size_t offset)
 
 void VertexBufferVK::bind(size_t offset, size_t size, unsigned int location)
 {
-	bindingDescription.binding = 0; //location?
-	bindingDescription.stride = size;
-	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-	
-	attributeDescription.binding = 0;
-	attributeDescription.location = location; //0?
 
-	switch (size) {
-	case 48:
-		attributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-		break;
-	case 24:
-		attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
-		break;
-	}
 
 	
 	//attributeDescriptions[0].offset = offset;

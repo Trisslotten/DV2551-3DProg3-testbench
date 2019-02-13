@@ -226,10 +226,10 @@
     <None Include="..\assets\GL45\VertexShader.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\assets\vulkan\shader.vert">
+    <None Include="..\assets\vulkan\FragmentShader.glsl">
       <Filter>Source Files\Vulkan\shaders</Filter>
     </None>
-    <None Include="..\assets\vulkan\shader.frag">
+    <None Include="..\assets\vulkan\VertexShader.glsl">
       <Filter>Source Files\Vulkan\shaders</Filter>
     </None>
   </ItemGroup>
