@@ -1,4 +1,4 @@
-/*
+
 #include <string>
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
@@ -295,9 +295,9 @@ void shutdown() {
 	renderer->shutdown();
 };
 
-int main1(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
+	renderer = Renderer::makeRenderer(Renderer::BACKEND::VULKAN);
 	renderer->initialize(800,600);
 	renderer->setWinTitle("OpenGL");
 	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
@@ -306,4 +306,3 @@ int main1(int argc, char *argv[])
 	shutdown();
 	return 0;
 };
-*/
