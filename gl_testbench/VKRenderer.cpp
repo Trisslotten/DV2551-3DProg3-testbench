@@ -581,7 +581,6 @@ void VKRenderer::createGraphicsPipeline()
 		bindDescs.push_back(vb->bindingDescription);
 		attrDescs.push_back(vb->attributeDescription);
 	}
-
 	vertexInputInfo.pVertexBindingDescriptions = bindDescs.data();
 	vertexInputInfo.pVertexAttributeDescriptions = attrDescs.data();
 
@@ -848,10 +847,38 @@ void VKRenderer::createPipelines()
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 			vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-			vertexInputInfo.vertexBindingDescriptionCount = 0;
-			vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-			vertexInputInfo.vertexAttributeDescriptionCount = 0;
-			vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+			
+			vertexInputInfo.vertexBindingDescriptionCount = mesh->geometryBuffers.size();
+			vertexInputInfo.vertexAttributeDescriptionCount = mesh->geometryBuffers.size();
+
+			std::vector<VkVertexInputBindingDescription> bindDescs;
+			std::vector<VkVertexInputAttributeDescription> attrDescs;
+			for (auto vb : mesh->geometryBuffers)
+			{
+				VkVertexInputBindingDescription bindingDescription;
+				VkVertexInputAttributeDescription attributeDescription;
+
+				bindingDescription.binding = vb.first;
+				bindingDescription.stride = vb.second.sizeElement;
+				bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+				attributeDescription.binding = vb.first;
+				attributeDescription.location = vb.first; //0?
+				attributeDescription.offset = vb.second.offset;
+				switch (vb.second.sizeElement)
+				{
+				case 48:
+					attributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+					break;
+				case 24:
+					attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+					break;
+				}
+				bindDescs.push_back(bindingDescription);
+				attrDescs.push_back(attributeDescription);
+			}
+			vertexInputInfo.pVertexBindingDescriptions = bindDescs.data();
+			vertexInputInfo.pVertexAttributeDescriptions = attrDescs.data();
 
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 			inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -895,9 +922,11 @@ void VKRenderer::createPipelines()
 
 			VkPipeline pipeline;
 
-			if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+			if (auto r = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
 			{
-				throw std::runtime_error("failed to create graphics pipeline!");
+				std::cout << "error: " << r << "\n";
+				system("pause");
+				//throw std::runtime_error("failed to create graphics pipeline!");
 			}
 
 			pipelines[mesh] = pipeline;

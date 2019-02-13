@@ -185,15 +185,15 @@ int initialiseTestbench()
 	for (int i = 0; i < materialDefs.size(); i++)
 	{
 		// set material name from text file?
-		//Material* m = renderer->makeMaterial("material_" + std::to_string(i));
-		//m->setShader(shaderPath + materialDefs[i][0] + shaderExtension, Material::ShaderType::VS);
-		//m->setShader(shaderPath + materialDefs[i][1] + shaderExtension, Material::ShaderType::PS);
+		Material* m = renderer->makeMaterial("material_" + std::to_string(i));
+		m->setShader(shaderPath + materialDefs[i][0] + shaderExtension, Material::ShaderType::VS);
+		m->setShader(shaderPath + materialDefs[i][1] + shaderExtension, Material::ShaderType::PS);
 
-		//m->addDefine(materialDefs[i][2], Material::ShaderType::VS);
-		//m->addDefine(materialDefs[i][2], Material::ShaderType::PS);
+		m->addDefine(materialDefs[i][2], Material::ShaderType::VS);
+		m->addDefine(materialDefs[i][2], Material::ShaderType::PS);
 
 		std::string err;
-		//m->compileMaterial(err);
+		m->compileMaterial(err);
 
 		// add a constant buffer to the material, to tint every triangle using this material
 		//m->addConstantBuffer(DIFFUSE_TINT_NAME, DIFFUSE_TINT);
@@ -202,7 +202,7 @@ int initialiseTestbench()
 
 		//m->updateConstantBuffer(diffuse[i], 4 * sizeof(float), DIFFUSE_TINT);
 
-		//materials.push_back(m);
+		materials.push_back(m);
 	}
 
 	// one technique with wireframe
@@ -210,10 +210,10 @@ int initialiseTestbench()
 	renderState1->setWireFrame(true);
 
 	// basic technique
-	//techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
-	//techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
-	//techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
-	//techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
+	techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));
 
 	// create texture
 	/*Texture2D* fatboy = renderer->makeTexture2D();
@@ -255,7 +255,7 @@ int initialiseTestbench()
 		// we can create a constant buffer outside the material, for example as part of the Mesh.
 		m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
 
-		//m->technique = techniques[i % 4];
+		m->technique = techniques[i % 4];
 		//if (i % 4 == 2)
 			//m->addTexture(textures[0], DIFFUSE_SLOT);
 
