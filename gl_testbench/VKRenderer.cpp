@@ -274,21 +274,25 @@ void VKRenderer::createInstance() {
 		throw std::runtime_error("failed to create instance!");
 	}
 
-	VkDebugReportCallbackCreateInfoEXT createInfo2 = {};
-	createInfo2.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-	createInfo2.flags = 0;
-	//createInfo2.flags |= VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
-	createInfo2.flags |= VK_DEBUG_REPORT_WARNING_BIT_EXT;
-	//createInfo2.flags |= VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-	createInfo2.flags |= VK_DEBUG_REPORT_ERROR_BIT_EXT;
-	//createInfo2.flags |= VK_DEBUG_REPORT_DEBUG_BIT_EXT;
-
-	createInfo2.pfnCallback = debugCallback;
-	// can fail. check for VK_SUCCESS
-	if (CreateDebugReportCallbackEXT(instance, &createInfo2, nullptr, &callback) != VK_SUCCESS)
+	if (enableValidationLayers)
 	{
-		throw std::runtime_error("failed to set up debug report!");
+		VkDebugReportCallbackCreateInfoEXT createInfo2 = {};
+		createInfo2.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+		createInfo2.flags = 0;
+		//createInfo2.flags |= VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
+		createInfo2.flags |= VK_DEBUG_REPORT_WARNING_BIT_EXT;
+		//createInfo2.flags |= VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+		createInfo2.flags |= VK_DEBUG_REPORT_ERROR_BIT_EXT;
+		//createInfo2.flags |= VK_DEBUG_REPORT_DEBUG_BIT_EXT;
+
+		createInfo2.pfnCallback = debugCallback;
+		// can fail. check for VK_SUCCESS
+		if (CreateDebugReportCallbackEXT(instance, &createInfo2, nullptr, &callback) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to set up debug report!");
+		}
 	}
+
 	printf("Created VKInstance! \n");
 }
 
