@@ -70,7 +70,7 @@ int VKRenderer::initialize(unsigned int width, unsigned int height) {
 	this->createSwapChain();
 	this->createImageViews();
 	this->createRenderPass();
-	this->createGraphicsPipeline();
+	//this->createGraphicsPipeline();
 	this->createFramebuffers();
 	this->createCommandPool();
 	this->createCommandBuffers();
@@ -884,8 +884,8 @@ void VKRenderer::createPipelines()
 	viewport.y = 0.0f;
 	viewport.width = (float)swapChainExtent.width;
 	viewport.height = (float)swapChainExtent.height;
-	viewport.minDepth = -100.0f;
-	viewport.maxDepth = 100.0f;
+	viewport.minDepth = 0.f;
+	viewport.maxDepth = 1.f;
 
 	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
