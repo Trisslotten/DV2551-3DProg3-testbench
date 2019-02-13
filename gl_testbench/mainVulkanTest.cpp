@@ -1,6 +1,6 @@
 /*#include "VKRenderer.h"
 
-#include "VKMaterial.h"
+#include "MaterialVK.h"
 
 VKRenderer* vkr;
 int main() {
@@ -9,7 +9,7 @@ int main() {
 	vkr->initialize(800, 600);
 
 	
-	auto vkm = new VKMaterial();
+	auto vkm = new MaterialVK(vkr);
 	vkm->setShader("../assets/vulkan/shader.frag", Material::ShaderType::PS);
 	vkm->compileMaterial(std::string());
 

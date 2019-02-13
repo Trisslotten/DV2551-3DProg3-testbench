@@ -18,6 +18,8 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
+class VKMaterial;
+
 struct QueueFamilyIndices
 {
 	int graphicsFamily = -1;
@@ -111,6 +113,8 @@ private:
 	Color _clearC;
 	//std::vector<VkBuffer> vBuffers;
 	std::vector<VertexBufferVK*> vBuffers;
+
+	VKMaterial* boundMaterial = nullptr;
 public:
 	VKRenderer();
 	int initialize(unsigned int width = 640, unsigned int height = 480);
