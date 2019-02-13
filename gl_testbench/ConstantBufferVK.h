@@ -12,12 +12,15 @@ public:
 	void bind(Material*);
 	VkBufferCreateInfo bufferInfo;
 	VkDescriptorSetLayoutBinding uboLayoutBinding;
+	VkBuffer _handle;
+	size_t size;
+	uint32_t location;
 private:
 	bool init = false;
-	VkBuffer _handle;
+	
 	std::string name;
-	uint32_t location;
-	uint32_t handle;
+	
+	//uint32_t handle;
 	uint32_t index;
 	void* buff = nullptr;
 	void* lastMat;

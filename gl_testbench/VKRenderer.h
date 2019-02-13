@@ -70,6 +70,8 @@ private:
 	
 	VkRenderPass renderPass;
 	VkDescriptorSetLayout descriptorSetLayout;
+	VkDescriptorPool descriptorPool;
+	VkDescriptorSet descriptorSet;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 
@@ -109,6 +111,8 @@ private:
 	void createCommandPool();
 	void createCommandBuffers();
 	void createSemaphores();
+	void createDescriptorPool();
+	void createDescriptorSets();
 
 	void createPipelines();
 
