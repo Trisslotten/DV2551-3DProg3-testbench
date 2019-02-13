@@ -43,6 +43,8 @@ class VKRenderer : public Renderer
 	friend class VertexBufferVK;
 	friend class MaterialVK;
 	friend class ConstantBufferVK;
+	friend class Texture2DVK;
+	friend class Sampler2DVK;
 
 private:
 	SDL_Window *window;
@@ -98,6 +100,9 @@ private:
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+	VkCommandBuffer beginSingleTimeCommands();
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 	void createInstance();
 	void createSurface();
@@ -134,6 +139,8 @@ private:
 	std::unordered_map<std::string, MaterialVK*> materials;
 
 	std::unordered_map<MeshVK*, VkPipeline> pipelines;
+
+	std::vector<Sampler2DVK*> samplers;
 public:
 	VKRenderer();
 	int initialize(unsigned int width = 640, unsigned int height = 480);

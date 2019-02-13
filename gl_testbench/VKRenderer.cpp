@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <fstream>
 #include "MaterialVK.h"
+#include "Texture2DVK.h"
+#include "Sampler2DVK.h"
 
 VkResult CreateDebugReportCallbackEXT(
 	VkInstance instance, 
@@ -534,6 +536,52 @@ VkShaderModule VKRenderer::createShaderModule(const std::vector<char>& code)
 	return shaderModule;
 }
 
+VkCommandBuffer VKRenderer::beginSingleTimeCommands()
+{
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = commandPool;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	return commandBuffer;
+}
+
+void VKRenderer::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+{
+	vkEndCommandBuffer(commandBuffer);
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(graphicsQueue);
+
+	vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
+void VKRenderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+{
+	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+	VkBufferCopy copyRegion = {};
+	copyRegion.size = size;
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	endSingleTimeCommands(commandBuffer);
+}
+
 void VKRenderer::createGraphicsPipeline()
 {
 	auto vertShaderCode = readFile("../assets/vulkan/vert.spv");
@@ -564,7 +612,7 @@ void VKRenderer::createGraphicsPipeline()
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = cBuffers.size();
+	layoutInfo.bindingCount = layoutBindings.size();
 	layoutInfo.pBindings = layoutBindings.data();
 
 	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
@@ -962,6 +1010,7 @@ void VKRenderer::createPipelines()
 			// TODO: change depending on renderstate
 			// mesh->technique->getRenderState()
 			rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+			//rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
 			rasterizer.lineWidth = 1.0f;
 			rasterizer.cullMode = VK_CULL_MODE_NONE;
 			rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
@@ -1239,12 +1288,14 @@ VertexBuffer * VKRenderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAG
 
 Texture2D * VKRenderer::makeTexture2D()
 {
-	return nullptr;
+	return new Texture2DVK(this);
 }
 
 Sampler2D * VKRenderer::makeSampler2D()
 {
-	return nullptr;
+	Sampler2DVK* result = new Sampler2DVK(this);
+	samplers.push_back(result);
+	return result;
 }
 
 RenderState * VKRenderer::makeRenderState()
