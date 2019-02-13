@@ -104,6 +104,7 @@ void updateScene()
 				0.0
 			};
 			//scene[i]->txBuffer->setData(&trans, sizeof(trans), scene[i]->technique->getMaterial(), TRANSLATION);
+			scene[i]->txBuffer->setData(&trans, sizeof(trans), nullptr, TRANSLATION);
 		}
 		// just to make them move...
 		shift += max(TOTAL_TRIS / 1000.0, TOTAL_TRIS / 100.0);
@@ -252,7 +253,7 @@ int initialiseTestbench()
 		//m->bindIAVertexBuffer(TEXTCOORD);
 
 		// we can create a constant buffer outside the material, for example as part of the Mesh.
-		//m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
+		m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
 
 		//m->technique = techniques[i % 4];
 		//if (i % 4 == 2)

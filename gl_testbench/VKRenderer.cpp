@@ -2,6 +2,7 @@
 #include "VKRenderer.h"
 #include "RenderStateVK.h"
 #include "VertexBufferVK.h"
+#include "ConstantBufferVK.h"
 #include "MeshVK.h"
 #include <iostream>
 #include <algorithm>
@@ -554,7 +555,19 @@ void VKRenderer::createGraphicsPipeline()
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+	std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
+	for (auto cb : cBuffers) {
+		layoutBindings.push_back(cb->uboLayoutBinding);
+	}
 
+	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = cBuffers.size();
+	layoutInfo.pBindings = layoutBindings.data();
+
+	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor set layout!");
+	}
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -648,8 +661,8 @@ void VKRenderer::createGraphicsPipeline()
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0; // Optional
-	pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+	pipelineLayoutInfo.setLayoutCount = 1;
+	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; 
 	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -809,6 +822,8 @@ int VKRenderer::shutdown() {
 
 	vkDestroyCommandPool(device, commandPool, nullptr);
 
+	vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
 	for (auto framebuffer : swapChainFramebuffers)
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
 
@@ -954,7 +969,9 @@ std::string VKRenderer::getShaderExtension()
 
 ConstantBuffer * VKRenderer::makeConstantBuffer(std::string NAME, unsigned int location)
 {
-	return nullptr;
+	ConstantBufferVK* cBuff =  new ConstantBufferVK(NAME, location, device, physicalDevice);
+	this->cBuffers.push_back(cBuff);
+	return cBuff;
 }
 
 Technique * VKRenderer::makeTechnique(Material *m, RenderState *r)

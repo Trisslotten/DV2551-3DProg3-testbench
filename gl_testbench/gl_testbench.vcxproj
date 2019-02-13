@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="ConstantBufferVK.cpp" />
     <ClCompile Include="maintestpos.cpp" />
     <ClCompile Include="mainVulkanTest.cpp" />
     <ClCompile Include="MeshVK.cpp" />
@@ -186,6 +187,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="ConstantBufferVK.h" />
     <ClInclude Include="MeshVK.h" />
     <ClInclude Include="OpenGL\ConstantBufferGL.h" />
     <ClInclude Include="OpenGL\MaterialGL.h" />

@@ -40,6 +40,7 @@ class VKRenderer : public Renderer
 {
 	friend class VertexBufferVK;
 	friend class MaterialVK;
+	friend class ConstantBufferVK;
 
 private:
 	SDL_Window *window;
@@ -66,6 +67,7 @@ private:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	
 	VkRenderPass renderPass;
+	VkDescriptorSetLayout descriptorSetLayout;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 
@@ -113,6 +115,7 @@ private:
 	Color _clearC;
 	//std::vector<VkBuffer> vBuffers;
 	std::vector<VertexBufferVK*> vBuffers;
+	std::vector<ConstantBufferVK*> cBuffers;
 
 	VKMaterial* boundMaterial = nullptr;
 public:

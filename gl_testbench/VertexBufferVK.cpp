@@ -46,13 +46,12 @@ VertexBufferVK::VertexBufferVK(size_t size, VertexBuffer::DATA_USAGE usage, VkDe
 VertexBufferVK::~VertexBufferVK()
 {
 	vkDestroyBuffer(_device, _handle, nullptr);
-	vkDestroyBuffer(_device, _handle, nullptr);
 	vkFreeMemory(_device, vertexBufferMemory, nullptr);
 }
 
 void VertexBufferVK::setData(const void * data, size_t size, size_t offset)
 {
-	vkBindBufferMemory(_device, _handle, vertexBufferMemory, offset);
+	vkBindBufferMemory(_device, _handle, vertexBufferMemory, 0);// offset);
 	vkMapMemory(_device, vertexBufferMemory, offset, size, 0, (void**)&data);
 }
 
