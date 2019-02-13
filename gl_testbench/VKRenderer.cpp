@@ -1123,6 +1123,8 @@ void VKRenderer::frame()
 
 	vkQueuePresentKHR(presentQueue, &presentInfo);
 
+	drawList.clear();
+
 	numFrames++;
 }
 

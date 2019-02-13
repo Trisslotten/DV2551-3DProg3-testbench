@@ -53,10 +53,8 @@ VertexBufferVK::~VertexBufferVK()
 
 void VertexBufferVK::setData(const void * data, size_t size, size_t offset)
 {
-	
-	
 	void* gpuData;
-	vkBindBufferMemory(_device, _handle, vertexBufferMemory, 0);// offset);
+	//vkBindBufferMemory(_device, _handle, vertexBufferMemory, 0);// offset);
 	if (vkMapMemory(_device, vertexBufferMemory, offset, size, 0, &gpuData) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to map vertex data!");
