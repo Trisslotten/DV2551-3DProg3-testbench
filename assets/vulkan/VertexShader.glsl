@@ -13,5 +13,7 @@ layout(binding = TRANSLATION) uniform TRANSLATION_NAME {
 //layout(location = 0) out vec3 fragColor;
 
 void main() {
-    gl_Position = vec4(pos.xy + trans.translate.xy, pos.z, 1.0f);
+    vec4 pos = vec4(pos.xy + trans.translate.xy, pos.z, 1.0f);
+    pos.y *= -1;
+    gl_Position = pos;//vec4(pos.xy + trans.translate.xy, pos.z, 1.0f);
 }
