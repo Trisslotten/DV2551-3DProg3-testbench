@@ -1,3 +1,4 @@
+/*
 #include <string>
 #include <SDL_keyboard.h>
 #include <SDL_events.h>
@@ -305,3 +306,4 @@ int main1(int argc, char *argv[])
 	shutdown();
 	return 0;
 };
+*/

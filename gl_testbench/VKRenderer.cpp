@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include "MaterialVK.h"
 
 VkResult CreateDebugReportCallbackEXT(
 	VkInstance instance, 
@@ -613,8 +614,6 @@ void VKRenderer::createGraphicsPipeline()
 	multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
 	multisampling.alphaToOneEnable = VK_FALSE; // Optional
 
-
-
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	colorBlendAttachment.blendEnable = VK_FALSE;
@@ -735,48 +734,6 @@ void VKRenderer::createCommandBuffers()
 	{
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
-
-	for (size_t i = 0; i < commandBuffers.size(); i++)
-	{
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
-		if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to begin recording command buffer!");
-		}
-
-		VkRenderPassBeginInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = renderPass;
-		renderPassInfo.framebuffer = swapChainFramebuffers[i];
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = swapChainExtent;
-
-		VkClearValue clearColor = { _clearC.r, _clearC.g, _clearC.b, _clearC.a };
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
-
-		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-		//bind pipelines?!?!?
-		//VkBuffer vertexBuffers[] = { vBuffers.data() };
-		VkDeviceSize offsets[] = { 0 };
-		//vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vBuffers.data(), offsets);
-
-		vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-
-		vkCmdEndRenderPass(commandBuffers[i]);
-
-		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to record command buffer!");
-		}
-	}
-
 }
 
 void VKRenderer::createSemaphores()
@@ -789,6 +746,145 @@ void VKRenderer::createSemaphores()
 
 		throw std::runtime_error("failed to create semaphores!");
 	}
+}
+
+void VKRenderer::createPipelines()
+{
+	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutInfo.setLayoutCount = 0; // Optional
+	pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+
+	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create pipeline layout!");
+	}
+
+
+	VkViewport viewport = {};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float)swapChainExtent.width;
+	viewport.height = (float)swapChainExtent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	VkRect2D scissor = {};
+	scissor.offset = { 0, 0 };
+	scissor.extent = swapChainExtent;
+
+	VkPipelineViewportStateCreateInfo viewportState = {};
+	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewportState.viewportCount = 1;
+	viewportState.pViewports = &viewport;
+	viewportState.scissorCount = 1;
+	viewportState.pScissors = &scissor;
+
+	VkPipelineMultisampleStateCreateInfo multisampling = {};
+	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisampling.sampleShadingEnable = VK_FALSE;
+	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+	multisampling.minSampleShading = 1.0f; // Optional
+	multisampling.pSampleMask = nullptr; // Optional
+	multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
+	multisampling.alphaToOneEnable = VK_FALSE; // Optional
+
+	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	colorBlendAttachment.blendEnable = VK_FALSE;
+	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
+	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+	VkPipelineColorBlendStateCreateInfo colorBlending = {};
+	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	colorBlending.logicOpEnable = VK_FALSE;
+	colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
+	colorBlending.attachmentCount = 1;
+	colorBlending.pAttachments = &colorBlendAttachment;
+	colorBlending.blendConstants[0] = 0.0f; // Optional
+	colorBlending.blendConstants[1] = 0.0f; // Optional
+	colorBlending.blendConstants[2] = 0.0f; // Optional
+	colorBlending.blendConstants[3] = 0.0f; // Optional
+
+	std::unordered_map<MaterialVK*, std::vector<MeshVK*>> data;
+	for (auto mesh : meshes)
+	{
+		MaterialVK* currentMat = (MaterialVK*)mesh->technique->getMaterial();
+		data[currentMat].push_back(mesh);
+	}
+	for (auto elem : data)
+	{
+		MaterialVK* currentMat = elem.first;
+		auto shaderStages = currentMat->shaderStageInfos;
+
+		for (auto mesh : elem.second)
+		{
+			VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+			vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+			vertexInputInfo.vertexBindingDescriptionCount = 0;
+			vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
+			vertexInputInfo.vertexAttributeDescriptionCount = 0;
+			vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+
+			VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+			inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+
+			VkPipelineRasterizationStateCreateInfo rasterizer = {};
+			rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+			rasterizer.depthClampEnable = VK_FALSE;
+			rasterizer.rasterizerDiscardEnable = VK_FALSE;
+			// TODO: change depending on renderstate
+			// mesh->technique->getRenderState()
+			rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+			rasterizer.lineWidth = 1.0f;
+			rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+			rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+			rasterizer.depthBiasEnable = VK_FALSE;
+			rasterizer.depthBiasConstantFactor = 0.0f; // Optional
+			rasterizer.depthBiasClamp = 0.0f; // Optional
+			rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
+
+
+			VkGraphicsPipelineCreateInfo pipelineInfo = {};
+			pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+			pipelineInfo.stageCount = 2;
+			pipelineInfo.pStages = shaderStages;
+			pipelineInfo.pVertexInputState = &vertexInputInfo;
+			pipelineInfo.pInputAssemblyState = &inputAssembly;
+			pipelineInfo.pViewportState = &viewportState;
+			pipelineInfo.pRasterizationState = &rasterizer;
+			pipelineInfo.pMultisampleState = &multisampling;
+			pipelineInfo.pDepthStencilState = nullptr; // Optional
+			pipelineInfo.pColorBlendState = &colorBlending;
+			pipelineInfo.pDynamicState = nullptr; // Optional
+			pipelineInfo.layout = pipelineLayout;
+			pipelineInfo.renderPass = renderPass;
+			pipelineInfo.subpass = 0;
+			pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+			pipelineInfo.basePipelineIndex = -1; // Optional
+
+			VkPipeline pipeline;
+
+			if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+			{
+				throw std::runtime_error("failed to create graphics pipeline!");
+			}
+
+			pipelines[mesh] = pipeline;
+		}
+		vkDestroyShaderModule(device, shaderStages[0].module, nullptr);
+		vkDestroyShaderModule(device, shaderStages[1].module, nullptr);
+	}
+
 }
 
 int VKRenderer::shutdown() {
@@ -858,6 +954,12 @@ void VKRenderer::present()
 /////////////////////////////////
 void VKRenderer::frame()
 {
+	if (numFrames == 0)
+	{
+		createPipelines();
+	}
+
+
 	uint32_t imageIndex;
 	vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
@@ -869,8 +971,61 @@ void VKRenderer::frame()
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
+
+
+	VkCommandBuffer currentCommandBuffer = commandBuffers[imageIndex];
+
+
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+	if (vkBeginCommandBuffer(currentCommandBuffer, &beginInfo) != VK_SUCCESS)
+		throw std::runtime_error("failed to begin recording command buffer!");
+
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass;
+	renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = swapChainExtent;
+
+	VkClearValue clearColor = { _clearC.r, _clearC.g, _clearC.b, _clearC.a };
+	renderPassInfo.clearValueCount = 1;
+	renderPassInfo.pClearValues = &clearColor;
+
+	vkCmdBeginRenderPass(currentCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+
+	//bind pipelines?!?!?
+	//VkBuffer vertexBuffers[] = { vBuffers.data() };
+	VkDeviceSize offsets[] = { 0 };
+	//vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vBuffers.data(), offsets);
+
+	for (auto mesh : drawList)
+	{
+		mesh->technique->enable(this);
+		// bind texture here
+		for (auto element : mesh->geometryBuffers)
+			mesh->bindIAVertexBuffer(element.first);
+		size_t numberElements = mesh->geometryBuffers[0].numElements;
+		mesh->txBuffer->bind(mesh->technique->getMaterial());
+
+		VkPipeline currentPipeline = pipelines[static_cast<MeshVK*>(mesh)];
+		vkCmdBindPipeline(currentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline);
+
+		vkCmdDraw(currentCommandBuffer, numberElements, 1, 0, 0);
+	}
+
+	vkCmdEndRenderPass(currentCommandBuffer);
+
+	if (vkEndCommandBuffer(currentCommandBuffer) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to record command buffer!");
+	}
+
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+	submitInfo.pCommandBuffers = &currentCommandBuffer;
 
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
 	submitInfo.signalSemaphoreCount = 1;
@@ -878,10 +1033,8 @@ void VKRenderer::frame()
 
 	if (auto r = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
 	{
-		std::cout << "ERROR: " << r << "\n";
-		//throw std::runtime_error("failed to submit draw command buffer!");
+		throw std::runtime_error("failed to submit draw command buffer!");
 	}
-
 
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -897,16 +1050,22 @@ void VKRenderer::frame()
 	presentInfo.pResults = nullptr; // Optional
 
 	vkQueuePresentKHR(presentQueue, &presentInfo);
+
+	numFrames++;
 }
 
 Material * VKRenderer::makeMaterial(const std::string & name)
 {
-	return nullptr;
+	MaterialVK* result = new MaterialVK(this);
+	materials[name] = result;
+	return result;
 }
 
 Mesh * VKRenderer::makeMesh()
 {
-	return new MeshVK();
+	MeshVK* result = new MeshVK();
+	meshes.push_back(result);
+	return result;
 }
 
 VertexBuffer * VKRenderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)

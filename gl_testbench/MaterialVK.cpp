@@ -70,7 +70,7 @@ VkShaderModule MaterialVK::createShaderModule(const std::vector<char>& code)
 // TODO: error checking
 int MaterialVK::compileMaterial(std::string & errString)
 {
-	std::unordered_map<ShaderType, VkPipelineShaderStageCreateInfo> shaderStageInfos;
+	VkPipelineShaderStageCreateInfo shaderStageInfos[2];
 	for (auto elem : shaderFileNames)
 	{
 		std::ifstream file(elem.second);
@@ -107,7 +107,7 @@ int MaterialVK::compileMaterial(std::string & errString)
 		shaderStageInfo.module = shaderModule;
 		shaderStageInfo.pName = "main";
 
-		shaderStageInfos[elem.first] = shaderStageInfo;
+		shaderStageInfos[(int)elem.first] = shaderStageInfo;
 	}
 	return 0;
 }

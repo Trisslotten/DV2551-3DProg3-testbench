@@ -191,16 +191,7 @@
     <ClInclude Include="VKRenderer.h">
       <Filter>Source Files\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="MeshVK.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderStateVK.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VKMaterial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBufferVK.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MeshVK.h">
@@ -210,6 +201,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MaterialVK.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshVK.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStateVK.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBufferVK.h">
       <Filter>Source Files\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

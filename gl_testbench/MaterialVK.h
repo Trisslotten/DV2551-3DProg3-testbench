@@ -12,6 +12,7 @@ class MaterialVK : public Material
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 
 public:
+	VkPipelineShaderStageCreateInfo shaderStageInfos[2];
 
 	MaterialVK(VKRenderer* renderer) : renderer(renderer)
 	{}
