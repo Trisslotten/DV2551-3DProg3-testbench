@@ -47,11 +47,13 @@ class VKRenderer : public Renderer
 	friend class Sampler2DVK;
 
 private:
+
 	SDL_Window *window;
 
 	int width, height;
 
 	bool globalWireframeMode = false;
+
 
 	//Vulkan variables
 	VkInstance instance;
@@ -80,9 +82,11 @@ private:
 	VkCommandPool commandPool;
 	std::vector<VkCommandBuffer> commandBuffers;
 
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
-
+	const int MAX_FRAMES_IN_FLIGHT = 3;
+	size_t currentFrame = 0;
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
 
 	QueueFamilyIndices familyIndices;
 
@@ -114,11 +118,12 @@ private:
 	void createFramebuffers();
 	void createCommandPool();
 	void createCommandBuffers();
-	void createSemaphores();
+	void createSyncObjects();
 	void createDescriptorPool();
 	void createDescriptorSets();
 
 	void createPipelines();
+
 
 	//Renderer class variables
 	std::vector<Mesh*> drawList;
