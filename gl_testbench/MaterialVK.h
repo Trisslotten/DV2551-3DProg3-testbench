@@ -3,14 +3,18 @@
 #include "VKRenderer.h"
 #include "Material.h"
 #include <string>
+#include <unordered_map>
+#include "ConstantBuffer.h"
 
 class MaterialVK : public Material
 {
+	friend class VKRenderer;
 	VKRenderer* renderer;
 
 	void expandShader(std::string& shader, ShaderType type);
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 
+	std::unordered_map<int, ConstantBuffer*> constantBuffers;
 public:
 	VkPipelineShaderStageCreateInfo shaderStageInfos[2];
 

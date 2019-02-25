@@ -351,6 +351,7 @@ void VKRenderer::createLogicalDevice()
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
+	deviceFeatures.fillModeNonSolid = VK_TRUE;
 
 	VkDeviceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -693,22 +694,28 @@ void VKRenderer::createDescriptorSets()
 {
 	std::vector<VkDescriptorSetLayoutBinding> bindingLayouts;
 
-	
-
+	std::set<int> matBindings;
 	for (auto ub : cBuffers)
 	{
-		//bindingLayouts.push_back(ub->uboLayoutBinding);
+		matBindings.insert(ub->location);
 	}
-	bindingLayouts.push_back(cBuffers[0]->uboLayoutBinding);
+	for (auto b : matBindings)
+	{
+		VkDescriptorSetLayoutBinding matLayoutBinding = {};
+		matLayoutBinding.binding = b;
+		matLayoutBinding.descriptorCount = 1;
+		matLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		matLayoutBinding.pImmutableSamplers = nullptr;
+		matLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+		bindingLayouts.push_back(matLayoutBinding);
+	}
 
-
-	std::set<int> bindings;
+	std::set<int> samplerBindings;
 	for (auto mesh : meshes)
 		for (auto t : mesh->textures)
-			bindings.insert(t.first);
+			samplerBindings.insert(t.first);
 
-
-	for (auto b : bindings)
+	for (auto b : samplerBindings)
 	{
 		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
 		samplerLayoutBinding.binding = b;
@@ -729,6 +736,7 @@ void VKRenderer::createDescriptorSets()
 	}
 
 
+
 	std::vector<VkDescriptorSetLayout> layouts(meshes.size(), descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -747,26 +755,46 @@ void VKRenderer::createDescriptorSets()
 	{
 		descriptorSetsIndices[mesh] = i;
 
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = static_cast<ConstantBufferVK*>(mesh->txBuffer)->_handle;// ((ConstantBufferVK*)(mesh->txBuffer))->_handle;
-		bufferInfo.offset = 0;
-		bufferInfo.range = ((ConstantBufferVK*)(mesh->txBuffer))->size;
-
 		std::vector<VkWriteDescriptorSet> writes;
 
-		VkWriteDescriptorSet uniformBufferDescWrite = {};
-		uniformBufferDescWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		uniformBufferDescWrite.dstSet = descriptorSets[i];
-		uniformBufferDescWrite.dstBinding = ((ConstantBufferVK*)(mesh->txBuffer))->location;
-		uniformBufferDescWrite.dstArrayElement = 0;
-		uniformBufferDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uniformBufferDescWrite.descriptorCount = 1;
-		uniformBufferDescWrite.pBufferInfo = &bufferInfo;
-		uniformBufferDescWrite.pImageInfo = nullptr; // Optional
-		uniformBufferDescWrite.pTexelBufferView = nullptr; // Optional
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = static_cast<ConstantBufferVK*>(mesh->txBuffer)->_handle;
+			bufferInfo.offset = 0;
+			bufferInfo.range = ((ConstantBufferVK*)(mesh->txBuffer))->size;
 
-		writes.push_back(uniformBufferDescWrite);
 
+			VkWriteDescriptorSet txWrite = {};
+			txWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			txWrite.dstSet = descriptorSets[i];
+			txWrite.dstBinding = ((ConstantBufferVK*)(mesh->txBuffer))->location;
+			txWrite.dstArrayElement = 0;
+			txWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			txWrite.descriptorCount = 1;
+			txWrite.pBufferInfo = &bufferInfo;
+
+			writes.push_back(txWrite);
+		}
+
+		auto mat = static_cast<MaterialVK*>(mesh->technique->getMaterial());
+		for (auto elem : mat->constantBuffers)
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = static_cast<ConstantBufferVK*>(elem.second)->_handle;
+			bufferInfo.offset = 0;
+			bufferInfo.range = ((ConstantBufferVK*)(elem.second))->size;
+
+			VkWriteDescriptorSet matCBWrite = {};
+			matCBWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			matCBWrite.dstSet = descriptorSets[i];
+			matCBWrite.dstBinding = elem.first;
+			matCBWrite.dstArrayElement = 0;
+			matCBWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			matCBWrite.descriptorCount = 1;
+			matCBWrite.pBufferInfo = &bufferInfo;
+
+			writes.push_back(matCBWrite);
+		}
 		
 		for (auto t : mesh->textures)
 		{
@@ -942,10 +970,13 @@ void VKRenderer::createPipelines()
 			rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 			rasterizer.depthClampEnable = VK_FALSE;
 			rasterizer.rasterizerDiscardEnable = VK_FALSE;
-			// TODO: change depending on renderstate
-			// mesh->technique->getRenderState()
-			rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-			//rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+
+			auto renderState = static_cast<RenderStateVK*>(mesh->technique->getRenderState());
+			if(renderState->_wireframe)
+				rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+			else 
+				rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+			
 			rasterizer.lineWidth = 1.0f;
 			rasterizer.cullMode = VK_CULL_MODE_NONE;
 			rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;

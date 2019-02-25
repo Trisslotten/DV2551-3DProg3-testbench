@@ -4,6 +4,7 @@
 
 class RenderStateVK : public RenderState
 {
+	friend class VKRenderer;
 public:
 	RenderStateVK();
 	~RenderStateVK();

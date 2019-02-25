@@ -219,7 +219,6 @@
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VertexBufferVK.h" />
-    <ClInclude Include="VKMaterial.h" />
     <ClInclude Include="MaterialVK.h" />
     <ClInclude Include="VKRenderer.h" />
   </ItemGroup>

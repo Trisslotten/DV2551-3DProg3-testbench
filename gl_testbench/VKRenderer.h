@@ -138,8 +138,6 @@ private:
 
 	long long numFrames = 0;
 
-	MaterialVK* boundMaterial = nullptr;
-
 	std::unordered_map<std::string, MaterialVK*> materials;
 
 	std::unordered_map<MeshVK*, VkPipeline> pipelines;

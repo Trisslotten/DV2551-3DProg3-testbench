@@ -42,7 +42,8 @@ static std::vector<char> readBinFile(const std::string& filename)
 
 	if (!file.is_open())
 	{
-		throw std::runtime_error("failed to open file!");
+		//throw std::runtime_error("failed to open file!");
+		return std::vector<char>();
 	}
 	size_t fileSize = (size_t)file.tellg();
 	std::vector<char> buffer(fileSize);
@@ -62,7 +63,9 @@ VkShaderModule MaterialVK::createShaderModule(const std::vector<char>& code)
 
 	VkShaderModule shaderModule;
 	if (vkCreateShaderModule(renderer->device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+	{
 		throw std::runtime_error("failed to create shader module!");
+	}
 
 	return shaderModule;
 }
@@ -84,6 +87,7 @@ int MaterialVK::compileMaterial(std::string & errString)
 		temp.close();
 
 		std::string compiledFilename = elem.second + ".spv";
+		remove(compiledFilename.c_str());
 
 		std::string command = "..\\assets\\vulkan\\glslangValidator.exe -V ../assets/vulkan/temp.glsl -S ";
 		if (elem.first == ShaderType::VS)
@@ -91,9 +95,16 @@ int MaterialVK::compileMaterial(std::string & errString)
 		if (elem.first == ShaderType::PS)
 			command += "frag";
 		command += " -o " + compiledFilename;
+
 		system(command.c_str());
 
 		auto spv = readBinFile(compiledFilename);
+		if (spv.size() == 0)
+		{
+			errString = "Could not compile shader: '" + elem.second + "'";
+			return -1;
+		}
+		remove(compiledFilename.c_str());
 
 		VkShaderModule shaderModule = createShaderModule(spv);
 
@@ -113,10 +124,12 @@ int MaterialVK::compileMaterial(std::string & errString)
 
 void MaterialVK::addConstantBuffer(std::string name, unsigned int location)
 {
+	constantBuffers[location] = renderer->makeConstantBuffer(name, location);
 }
 
 void MaterialVK::updateConstantBuffer(const void * data, size_t size, unsigned int location)
 {
+	constantBuffers[location]->setData(data, size, this, location);
 }
 
 int MaterialVK::enable()
