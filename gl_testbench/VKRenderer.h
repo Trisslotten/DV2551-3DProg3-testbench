@@ -75,14 +75,14 @@ private:
 	VkRenderPass renderPass;
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorPool descriptorPool;
-	VkDescriptorSet descriptorSet;
+	//VkDescriptorSet descriptorSet;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 
 	VkCommandPool commandPool;
 	std::vector<VkCommandBuffer> commandBuffers;
 
-	const int MAX_FRAMES_IN_FLIGHT = 3;
+	const int MAX_FRAMES_IN_FLIGHT = 2;
 	size_t currentFrame = 0;
 	std::vector<VkSemaphore> imageAvailableSemaphores;
 	std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -120,10 +120,10 @@ private:
 	void createCommandBuffers();
 	void createSyncObjects();
 	void createDescriptorPool();
+
 	void createDescriptorSets();
-
 	void createPipelines();
-
+	void finalize();
 
 	//Renderer class variables
 	std::vector<Mesh*> drawList;
@@ -143,6 +143,8 @@ private:
 	std::unordered_map<std::string, MaterialVK*> materials;
 
 	std::unordered_map<MeshVK*, VkPipeline> pipelines;
+	std::vector<VkDescriptorSet> descriptorSets;
+	std::unordered_map<Mesh*, size_t> descriptorSetsIndices;
 
 	std::vector<Sampler2DVK*> samplers;
 public:

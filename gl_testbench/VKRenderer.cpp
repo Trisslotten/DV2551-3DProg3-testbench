@@ -671,62 +671,143 @@ void VKRenderer::createSyncObjects()
 
 void VKRenderer::createDescriptorPool()
 {
-	VkDescriptorPoolSize poolSize = {};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = static_cast<uint32_t>(1);
+	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(1000);
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(1000);
+
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
-	poolInfo.maxSets = static_cast<uint32_t>(1);
+	poolInfo.poolSizeCount = poolSizes.size();
+	poolInfo.pPoolSizes = poolSizes.data();
+	poolInfo.maxSets = static_cast<uint32_t>(1000);
 
 	if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
 }
 
+
 void VKRenderer::createDescriptorSets()
 {
-
-}
-
-void VKRenderer::createPipelines()
-{
 	std::vector<VkDescriptorSetLayoutBinding> bindingLayouts;
-	for (auto ub : cBuffers) {
+
+	
+
+	for (auto ub : cBuffers)
+	{
 		//bindingLayouts.push_back(ub->uboLayoutBinding);
 	}
 	bindingLayouts.push_back(cBuffers[0]->uboLayoutBinding);
 
 
+	std::set<int> bindings;
+	for (auto mesh : meshes)
+		for (auto t : mesh->textures)
+			bindings.insert(t.first);
+
+
+	for (auto b : bindings)
+	{
+		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+		samplerLayoutBinding.binding = b;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		bindingLayouts.push_back(samplerLayoutBinding);
+	}
+
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;// bindingLayouts.size();
+	layoutInfo.bindingCount = static_cast<uint32_t>(bindingLayouts.size());
 	layoutInfo.pBindings = bindingLayouts.data();
-
-	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+	{
 		throw std::runtime_error("failed to create descriptor set layout!");
 	}
 
-	//std::vector<VkDescriptorSetLayout> layouts(1, descriptorSetLayout);
+
+	std::vector<VkDescriptorSetLayout> layouts(meshes.size(), descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(1);
-	allocInfo.pSetLayouts = &descriptorSetLayout;
-
-	if (vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet) != VK_SUCCESS) {
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(meshes.size());
+	allocInfo.pSetLayouts = layouts.data();
+	descriptorSets.resize(meshes.size());
+	if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+	{
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
+	std::vector<VkDescriptorImageInfo*> toDelete;
 
+	int i = 0;
+	for (auto mesh : meshes)
+	{
+		descriptorSetsIndices[mesh] = i;
 
+		VkDescriptorBufferInfo bufferInfo = {};
+		bufferInfo.buffer = static_cast<ConstantBufferVK*>(mesh->txBuffer)->_handle;// ((ConstantBufferVK*)(mesh->txBuffer))->_handle;
+		bufferInfo.offset = 0;
+		bufferInfo.range = ((ConstantBufferVK*)(mesh->txBuffer))->size;
+
+		std::vector<VkWriteDescriptorSet> writes;
+
+		VkWriteDescriptorSet uniformBufferDescWrite = {};
+		uniformBufferDescWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		uniformBufferDescWrite.dstSet = descriptorSets[i];
+		uniformBufferDescWrite.dstBinding = ((ConstantBufferVK*)(mesh->txBuffer))->location;
+		uniformBufferDescWrite.dstArrayElement = 0;
+		uniformBufferDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uniformBufferDescWrite.descriptorCount = 1;
+		uniformBufferDescWrite.pBufferInfo = &bufferInfo;
+		uniformBufferDescWrite.pImageInfo = nullptr; // Optional
+		uniformBufferDescWrite.pTexelBufferView = nullptr; // Optional
+
+		writes.push_back(uniformBufferDescWrite);
+
+		
+		for (auto t : mesh->textures)
+		{
+			auto vkTex = static_cast<Texture2DVK*>(t.second);
+			VkDescriptorImageInfo* imageInfo = new VkDescriptorImageInfo();
+			memset(imageInfo, 0, sizeof(VkDescriptorImageInfo));
+			imageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo->imageView = vkTex->textureImageView;
+			imageInfo->sampler = static_cast<Sampler2DVK*>(vkTex->sampler)->textureSampler;
+			toDelete.push_back(imageInfo);
+
+			VkWriteDescriptorSet imageDescWrite = {};
+			imageDescWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			imageDescWrite.dstSet = descriptorSets[i];
+			imageDescWrite.dstBinding = t.first;
+			imageDescWrite.dstArrayElement = 0;
+			imageDescWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			imageDescWrite.descriptorCount = 1;
+			imageDescWrite.pImageInfo = imageInfo;
+
+			writes.push_back(imageDescWrite);
+		}
+
+		vkUpdateDescriptorSets(device, writes.size(), writes.data(), 0, nullptr);
+		i++;
+	}
+
+	for (auto d : toDelete)
+	{
+		delete d;
+	}
+}
+
+void VKRenderer::createPipelines()
+{
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1; // Optional
 	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; // Optional
 	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
-
 	if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
@@ -906,7 +987,17 @@ void VKRenderer::createPipelines()
 		vkDestroyShaderModule(device, shaderStages[0].module, nullptr);
 		vkDestroyShaderModule(device, shaderStages[1].module, nullptr);
 	}
+}
 
+void VKRenderer::finalize()
+{
+	for (auto s : samplers)
+	{
+		s->finalize();
+	}
+	
+	createDescriptorSets();
+	createPipelines();
 }
 
 int VKRenderer::shutdown() {
@@ -947,7 +1038,7 @@ int VKRenderer::shutdown() {
 
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
-	vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+	//vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 	//destroy sdl window here
 	SDL_Quit();
 
@@ -988,8 +1079,9 @@ void VKRenderer::frame()
 {
 	if (numFrames == 0)
 	{
-		createPipelines();
+		finalize();
 	}
+
 	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 	vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -999,8 +1091,6 @@ void VKRenderer::frame()
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-
-
 	VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
@@ -1009,7 +1099,6 @@ void VKRenderer::frame()
 
 
 	VkCommandBuffer currentCommandBuffer = commandBuffers[imageIndex];
-
 
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1044,25 +1133,6 @@ void VKRenderer::frame()
 		VkPipeline currentPipeline = pipelines[static_cast<MeshVK*>(mesh)];
 		vkCmdBindPipeline(currentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline);
 
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = static_cast<ConstantBufferVK*>(mesh->txBuffer)->_handle;// ((ConstantBufferVK*)(mesh->txBuffer))->_handle;
-		bufferInfo.offset = 0;
-		bufferInfo.range = ((ConstantBufferVK*)(mesh->txBuffer))->size;
-
-		VkWriteDescriptorSet descriptorWrite = {};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = descriptorSet;
-		descriptorWrite.dstBinding = ((ConstantBufferVK*)(mesh->txBuffer))->location;
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.descriptorCount = 1;
-
-		descriptorWrite.pBufferInfo = &bufferInfo;
-		descriptorWrite.pImageInfo = nullptr; // Optional
-		descriptorWrite.pTexelBufferView = nullptr; // Optional
-
-		vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
-
 		std::vector<VkBuffer> buffers;
 		std::vector<VkDeviceSize> offsets;
 		for (auto vb : mesh->geometryBuffers)
@@ -1072,7 +1142,9 @@ void VKRenderer::frame()
 			offsets.push_back( vb.second.offset);
 		}
 		vkCmdBindVertexBuffers(currentCommandBuffer, 0, buffers.size(), buffers.data(), offsets.data());
-		vkCmdBindDescriptorSets(currentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+
+		size_t dsi = descriptorSetsIndices[mesh];
+		vkCmdBindDescriptorSets(currentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[dsi], 0, nullptr);
 
 		vkCmdDraw(currentCommandBuffer, numberElements, 1, 0, 0);
 	}
@@ -1112,7 +1184,7 @@ void VKRenderer::frame()
 
 	vkQueuePresentKHR(presentQueue, &presentInfo);
 
-	drawList.clear();
+
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	numFrames++;
 }

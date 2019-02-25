@@ -248,6 +248,8 @@ int Texture2DVK::loadFromFile(std::string filename)
 	vkDestroyBuffer(renderer->device, stagingBuffer, nullptr);
 	vkFreeMemory(renderer->device, stagingBufferMemory, nullptr);
 
+	createTextureImageView();
+
 	return 0;
 }
 

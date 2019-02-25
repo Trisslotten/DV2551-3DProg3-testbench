@@ -4,7 +4,7 @@
 enum WRAPPING { REPEAT = 0, CLAMP = 1 };
 
 // just some values to play with, not complete!
-enum FILTER { POINT_SAMPLER = 0, LINEAR = 0 };
+enum FILTER { POINT_SAMPLER = 0, LINEAR = 1 };
 
 class Sampler2D
 {

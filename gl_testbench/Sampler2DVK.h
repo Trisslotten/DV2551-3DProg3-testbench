@@ -8,7 +8,14 @@ class VKRenderer;
 
 class Sampler2DVK : public Sampler2D
 {
+	friend class VKRenderer;
+	VKRenderer* renderer;
+
 	VkSampler textureSampler;
+
+	VkSamplerCreateInfo samplerInfo = {};
+
+	void finalize();
 public:
 
 	Sampler2DVK(VKRenderer* renderer);
